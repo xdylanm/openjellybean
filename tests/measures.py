@@ -216,9 +216,8 @@ def ir(b, *, vr):
 
 
 @measure(("diode", "schottky"), "s")
-def trr(b, *, i_f=10e-3, i_r=10e-3, i_stop=1e-3, t_flip=100e-9, t_rec=30e-9):
+def trr(b, *, i_f=10e-3, i_r=10e-3, i_stop=1e-3, r=1e3, t_flip=100e-9, t_rec=30e-9):
     """Reverse recovery, reversal to i_stop. Slow rectifiers need larger t_flip and t_rec."""
-    r = 1e3
     t_end = t_flip + t_rec
     step = t_end / 20000  # trr is step-sensitive: 50 ps reads about 2 % high on a 4 ns part
     # i(V1) is negative while the diode conducts forward, positive during recovery.

@@ -55,8 +55,8 @@
 + CJO=40p VJ=0.75 M=0.5 IS=1e-13 N=1.1 RB=0.2 BV=60 IBV=10u TT=20n)
 
 .model BS250_OJ VDMOS(pchan VTO=-2.1 KP=0.02 LAMBDA=0.01 RD=1.8 RS=0.2 RG=10
-+ CGS=35p CGDMAX=40p CGDMIN=7p A=0.5
-+ CJO=90p VJ=0.75 M=0.5 IS=1e-13 N=1.1 RB=0.5 BV=45 IBV=10u TT=30n)
++ CGS=25p CGDMAX=21p CGDMIN=3.7p A=0.5
++ CJO=57p VJ=0.75 M=0.5 IS=1e-13 N=1.1 RB=0.5 BV=45 IBV=10u TT=30n)
 
 * ------------------------------------------------------------- Diodes -------
 * 1N4148_OJ : small-signal fast switching (also 1N914)
@@ -83,12 +83,12 @@ Rz  n2 a {RSER}
 .model dknee D(IS=1e-12 N={NK})
 .ends ZENER_OJ
 
-* 500 mW glass zeners, BZX79/BZX55 class, specified at IZT = 5 mA
+* 500 mW glass zeners, BZX79 class, specified at IZT = 5 mA
 .subckt BZX79C3V3_OJ a k
 X1 a k ZENER_OJ params: VZ=3.3 IZT=5m RZ=85 NK=3
 .ends
 .subckt BZX79C4V7_OJ a k
-X1 a k ZENER_OJ params: VZ=4.7 IZT=5m RZ=60 NK=2.5
+X1 a k ZENER_OJ params: VZ=4.7 IZT=5m RZ=50 NK=2.5
 .ends
 .subckt BZX79C5V1_OJ a k
 X1 a k ZENER_OJ params: VZ=5.1 IZT=5m RZ=40 NK=2
@@ -97,23 +97,23 @@ X1 a k ZENER_OJ params: VZ=5.1 IZT=5m RZ=40 NK=2
 X1 a k ZENER_OJ params: VZ=5.6 IZT=5m RZ=15 NK=1.5
 .ends
 .subckt BZX79C6V2_OJ a k
-X1 a k ZENER_OJ params: VZ=6.2 IZT=5m RZ=8 NK=1
+X1 a k ZENER_OJ params: VZ=6.2 IZT=5m RZ=6 NK=1
 .ends
 .subckt BZX79C9V1_OJ a k
-X1 a k ZENER_OJ params: VZ=9.1 IZT=5m RZ=10 NK=1
+X1 a k ZENER_OJ params: VZ=9.1 IZT=5m RZ=6 NK=1
 .ends
 .subckt BZX79C12_OJ a k
-X1 a k ZENER_OJ params: VZ=12 IZT=5m RZ=15 NK=1
+X1 a k ZENER_OJ params: VZ=12 IZT=5m RZ=10 NK=1
 .ends
 .subckt BZX79C15_OJ a k
-X1 a k ZENER_OJ params: VZ=15 IZT=5m RZ=20 NK=1
+X1 a k ZENER_OJ params: VZ=15 IZT=5m RZ=10 NK=1
 .ends
 * 1 W, 1N47xxA class, specified at the datasheet IZT
 .subckt 1N4733A_OJ a k
-X1 a k ZENER_OJ params: VZ=5.1 IZT=49m RZ=5 NK=2
+X1 a k ZENER_OJ params: VZ=5.1 IZT=49m RZ=7 NK=2
 .ends
 .subckt 1N4742A_OJ a k
-X1 a k ZENER_OJ params: VZ=12 IZT=21m RZ=7 NK=1
+X1 a k ZENER_OJ params: VZ=12 IZT=21m RZ=9 NK=1
 .ends
 
 * ------------------------------------------------------------- Op-amps ------

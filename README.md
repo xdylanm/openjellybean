@@ -24,9 +24,9 @@ XU1 inp inn vcc vee out TL07X_OJ   ; op-amp: +IN -IN V+ V- OUT
 | `BC547B_OJ` NPN | BC547B | hFE 290 @ 2 mA; 150 @ 10 µA | 282; 162 |
 | | | VBE 0.66 V @ 2 mA | 0.658 V |
 | | | VCE(sat) 90 / 200 mV @ 10 / 100 mA | 69 / 231 mV |
-| | | hoe 30 µS @ 2 mA (VA ≈ 65 V) | 30 µS |
 | | | fT 300 MHz @ 10 mA | 304 MHz |
 | `BC557B_OJ` PNP | BC557B | hFE 290 @ 2 mA | 289 |
+| | | VBE(on) 0.62 V @ 2 mA | 0.658 V |
 | | | VCE(sat) 75 / 250 mV @ 10 / 100 mA | 64 / 247 mV |
 | | | fT 150 MHz | 150 MHz |
 | `2N3904_OJ` NPN | 2N3904, MMBT3904 | hFE 100–300 @ 10 mA (min 70 @ 1 mA, 30 @ 100 mA), VCE = 1 V | 157 (164 @ 1 mA, 75 @ 100 mA) |
@@ -38,11 +38,12 @@ XU1 inp inn vcc vee out TL07X_OJ   ; op-amp: +IN -IN V+ V- OUT
 | `2N7000_OJ` NMOS | 2N7000, 2N7002, BS170 | VGS(th) 2.1 V @ 1 mA | 2.02 V |
 | | | RDS(on) 1.2 Ω @ 10 V; 1.8 Ω @ 4.5 V | 1.12 Ω; 2.06 Ω |
 | | | Ciss / Coss / Crss 20 / 11 / 4 pF @ 25 V | 19.5 / 10.4 / 3.5 pF |
-| `BS250_OJ` PMOS | BS250 | VGS(th) −2.4 V; RDS(on) ≈ 9 Ω @ −10 V | −2.4 V; 8.9 Ω |
-| `1N4148_OJ` | 1N4148, 1N914 | VF 0.61 / 0.72 / 0.92 V @ 1 / 10 / 100 mA | 0.611 / 0.729 / 0.920 V |
-| | | trr ≤ 4 ns (10 mA → 10 mA → 1 mA) | 3.97 ns |
+| `BS250_OJ` PMOS | BS250 | VGS(th) −1 to −3.5 V; RDS(on) 9 Ω @ −10 V | −2.4 V; 8.9 Ω |
+| | | Ciss / Coss / Crss 30 / 20 / 5 pF @ 10 V | 30.0 / 20.1 / 5.0 pF |
+| `1N4148_OJ` | 1N4148, 1N914 | VF 0.61 / 0.72 / 0.875 V @ 1 / 10 / 100 mA | 0.611 / 0.729 / 0.920 V |
+| | | trr ≤ 8 ns (10 mA → 10 mA → 1 mA); ≤ 4 ns (10 mA, 6 V, 100 Ω) | 3.97 ns; 0.67 ns |
 | `1N5819_OJ` Schottky | 1N5819 | VF 0.30 / 0.42 / 0.55 V @ 0.1 / 1 / 3 A | 0.306 / 0.419 / 0.563 V |
-| `BZX79C{3V3,4V7,5V1,5V6,6V2,9V1,12,15}_OJ` | BZX79 / BZX55 500 mW | VZ and rZ at IZT = 5 mA | exact by construction |
+| `BZX79C{3V3,4V7,5V1,5V6,6V2,9V1,12,15}_OJ` | BZX79 500 mW | VZ and rZ at IZT = 5 mA | exact by construction |
 | `1N4733A_OJ`, `1N4742A_OJ` | 1N47xxA 1 W | 5.1 V / 12 V at datasheet IZT | exact by construction |
 | `TL07X_OJ` (one section) | TL071/072/074 | AOL 106 dB, GBW 3 MHz, SR 13 V/µs | 106 dB, 2.9 MHz (57° PM), 12.9 V/µs |
 | | | ±13.5 V into 10 kΩ @ ±15 V, IQ 1.4 mA | ±13.38 V, 1.4 mA |
@@ -70,5 +71,12 @@ The targets and tolerances live in [`tests/models.toml`](tests/models.toml). See
 * Op-amps: no input common-mode range limits or phase reversal, no noise,
   CMRR/PSRR, offset drift, or LM358 crossover distortion. VOS defaults to 0 —
   use `OPAMP_OJ params: VOS=3m ...` to add offset.
+* These typical values are not matched, because fixing them would mean changing the
+  model structure or trading off other fits: 1N5819 leakage is 1.6 µA at 40 V (about
+  20 µA on the datasheet curve), 1N4148 leakage is 2.9 nA at 20 V (about 9 nA), and
+  LM358 short-circuit current is 27 mA (40 mA typ at a 10 V supply).
+* `TL07X_OJ` matches the slower published TL07x figures, 3 MHz and 13 V/µs; some current
+  versions reach 5.25 MHz and 20 V/µs. `BC557B_OJ` also uses a slower figure, fT = 150 MHz;
+  some datasheets list up to 320 MHz.
 * Tested in ngspice 47 only; LTspice should accept the syntax
   but hasn't been run.

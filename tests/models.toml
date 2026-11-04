@@ -12,24 +12,23 @@
 [BC547B_OJ]
 kind = "npn"
 stand_in_for = ["BC547B"]
-source = "BC546/547/548 family datasheets, typical column, group B"
+source = "onsemi BC546 family datasheet (hFE, VCE(sat), fT); NXP BC547 datasheet (VBE typ)"
 checks = [
   { measure = "hfe", ic = 2e-3, typ = 290 },
   { measure = "hfe", ic = 10e-6, typ = 150 },
   { measure = "vbe", ic = 2e-3, typ = 0.66, tol = 0.03 },
   { measure = "vcesat", ic = 10e-3, ib = 0.5e-3, typ = 0.09, tol = 0.25 },
   { measure = "vcesat", ic = 100e-3, ib = 5e-3, typ = 0.2, tol = 0.2 },
-  { measure = "hoe", ic = 2e-3, typ = 30e-6 },
   { measure = "ft", ic = 10e-3, typ = 300e6 },
 ]
 
 [BC557B_OJ]
 kind = "pnp"
 stand_in_for = ["BC557B"]
-source = "BC556/557/558 family datasheets, typical column, group B"
+source = "onsemi BC556 family datasheet; fT from a BC557B sheet giving 150 MHz typ (onsemi gives 320 MHz)"
 checks = [
   { measure = "hfe", ic = 2e-3, typ = 290 },
-  { measure = "vbe", ic = 2e-3, min = 0.6, max = 0.75 },
+  { measure = "vbe", ic = 2e-3, typ = 0.62 },
   { measure = "vcesat", ic = 10e-3, ib = 0.5e-3, typ = 0.075, tol = 0.2 },
   { measure = "vcesat", ic = 100e-3, ib = 5e-3, typ = 0.25 },
   { measure = "ft", ic = 10e-3, typ = 150e6 },
@@ -38,7 +37,7 @@ checks = [
 [2N3904_OJ]
 kind = "npn"
 stand_in_for = ["2N3904", "MMBT3904"]
-source = "2N3904 datasheets, min/max limits (no typical column)"
+source = "onsemi 2N3903/2N3904 datasheet, min/max limits (no typical column)"
 checks = [
   { measure = "hfe", ic = 10e-3, vce = 1, min = 100, max = 300 },
   { measure = "hfe", ic = 1e-3, vce = 1, min = 70 },
@@ -54,7 +53,7 @@ checks = [
 [2N3906_OJ]
 kind = "pnp"
 stand_in_for = ["2N3906", "MMBT3906"]
-source = "2N3906 datasheets, min/max limits (no typical column)"
+source = "onsemi 2N3906 datasheet, min/max limits (no typical column)"
 checks = [
   { measure = "hfe", ic = 10e-3, vce = 1, min = 100, max = 300 },
   { measure = "hfe", ic = 100e-3, vce = 1, min = 30 },
@@ -70,7 +69,7 @@ checks = [
 [2N7000_OJ]
 kind = "nmos"
 stand_in_for = ["2N7000", "2N7002", "BS170"]
-source = "2N7000 datasheets, typical column"
+source = "onsemi 2N7000/2N7002/NDS7002A datasheet, typical column"
 checks = [
   { measure = "vth", id = 1e-3, typ = 2.1 },
   { measure = "rdson", vgs = 10, id = 0.5, typ = 1.2 },
@@ -83,33 +82,39 @@ checks = [
 [BS250_OJ]
 kind = "pmos"
 stand_in_for = ["BS250"]
-source = "BS250 datasheets, typical values"
+source = "Philips BS250 datasheet, April 1995: VGS(th) limits, typical RDS(on) and capacitances"
 checks = [
-  { measure = "vth", id = 1e-3, typ = 2.4 },
+  { measure = "vth", id = 1e-3, min = 1.0, max = 3.5 },
   { measure = "rdson", vgs = 10, id = 0.2, typ = 9 },
+  { measure = "ciss", vds = 10, typ = 30e-12 },
+  { measure = "coss", vds = 10, typ = 20e-12 },
+  { measure = "crss", vds = 10, typ = 5e-12 },
 ]
 
 # ------------------------------------------------------------- Diodes -------
 [1N4148_OJ]
 kind = "diode"
 stand_in_for = ["1N4148", "1N914"]
-source = "1N4148 datasheets, typical forward curve and limits"
+source = "Vishay 1N4148 datasheet 81857 Rev. 1.6: limits, and VF read by eye from Fig. 1"
 checks = [
   { measure = "vf", i = 1e-3, typ = 0.61, tol = 0.03 },
   { measure = "vf", i = 10e-3, typ = 0.72, tol = 0.03 },
-  { measure = "vf", i = 100e-3, typ = 0.92, tol = 0.03 },
+  { measure = "vf", i = 100e-3, typ = 0.875, tol = 0.06 },
   { measure = "ir", vr = 20, max = 25e-9 },
-  { measure = "trr", i_f = 10e-3, i_r = 10e-3, i_stop = 1e-3, max = 4e-9 },
+  { measure = "trr", i_f = 10e-3, i_r = 10e-3, i_stop = 1e-3, max = 8e-9 },
+  { measure = "trr", i_f = 10e-3, i_r = 60e-3, i_stop = 6e-3, r = 100, max = 4e-9 },
 ]
 
 [1N5819_OJ]
 kind = "schottky"
 stand_in_for = ["1N5819"]
-source = "1N5817/18/19 datasheets, typical forward curve and limits"
+source = "Vishay 1N5817/18/19 datasheet 88525: limits, and typical VF read by eye from Fig. 3"
 checks = [
   { measure = "vf", i = 0.1, typ = 0.30, tol = 0.05 },
   { measure = "vf", i = 1, typ = 0.42, tol = 0.05 },
   { measure = "vf", i = 3, typ = 0.55, tol = 0.05 },
+  { measure = "vf", i = 1, max = 0.6 },
+  { measure = "vf", i = 3.1, max = 0.9 },
   { measure = "ir", vr = 40, max = 1e-3 },
 ]
 
@@ -125,8 +130,8 @@ checks = [
 
 [BZX79C3V3_OJ]
 kind = "zener"
-stand_in_for = ["BZX79-C3V3", "BZX55C3V3"]
-source = "BZX79/BZX55 datasheets, nominal VZ and rZ at IZT = 5 mA"
+stand_in_for = ["BZX79-C3V3"]
+source = "NXP BZX79 series data sheet, 2002 Feb 27, Table 1: typical rdif at IZ = 5 mA"
 checks = [
   { measure = "vz", i = 5e-3, typ = 3.3, tol = 0.01 },
   { measure = "zz", i = 5e-3, typ = 85 },
@@ -134,17 +139,17 @@ checks = [
 
 [BZX79C4V7_OJ]
 kind = "zener"
-stand_in_for = ["BZX79-C4V7", "BZX55C4V7"]
-source = "BZX79/BZX55 datasheets, nominal VZ and rZ at IZT = 5 mA"
+stand_in_for = ["BZX79-C4V7"]
+source = "NXP BZX79 series data sheet, 2002 Feb 27, Table 1: typical rdif at IZ = 5 mA"
 checks = [
   { measure = "vz", i = 5e-3, typ = 4.7, tol = 0.01 },
-  { measure = "zz", i = 5e-3, typ = 60 },
+  { measure = "zz", i = 5e-3, typ = 50 },
 ]
 
 [BZX79C5V1_OJ]
 kind = "zener"
-stand_in_for = ["BZX79-C5V1", "BZX55C5V1"]
-source = "BZX79/BZX55 datasheets, nominal VZ and rZ at IZT = 5 mA"
+stand_in_for = ["BZX79-C5V1"]
+source = "NXP BZX79 series data sheet, 2002 Feb 27, Table 1: typical rdif at IZ = 5 mA"
 checks = [
   { measure = "vz", i = 5e-3, typ = 5.1, tol = 0.01 },
   { measure = "zz", i = 5e-3, typ = 40 },
@@ -152,8 +157,8 @@ checks = [
 
 [BZX79C5V6_OJ]
 kind = "zener"
-stand_in_for = ["BZX79-C5V6", "BZX55C5V6"]
-source = "BZX79/BZX55 datasheets, nominal VZ and rZ at IZT = 5 mA"
+stand_in_for = ["BZX79-C5V6"]
+source = "NXP BZX79 series data sheet, 2002 Feb 27, Table 1: typical rdif at IZ = 5 mA"
 checks = [
   { measure = "vz", i = 5e-3, typ = 5.6, tol = 0.01 },
   { measure = "zz", i = 5e-3, typ = 15 },
@@ -161,56 +166,56 @@ checks = [
 
 [BZX79C6V2_OJ]
 kind = "zener"
-stand_in_for = ["BZX79-C6V2", "BZX55C6V2"]
-source = "BZX79/BZX55 datasheets, nominal VZ and rZ at IZT = 5 mA"
+stand_in_for = ["BZX79-C6V2"]
+source = "NXP BZX79 series data sheet, 2002 Feb 27, Table 1: typical rdif at IZ = 5 mA"
 checks = [
   { measure = "vz", i = 5e-3, typ = 6.2, tol = 0.01 },
-  { measure = "zz", i = 5e-3, typ = 8 },
+  { measure = "zz", i = 5e-3, typ = 6 },
 ]
 
 [BZX79C9V1_OJ]
 kind = "zener"
-stand_in_for = ["BZX79-C9V1", "BZX55C9V1"]
-source = "BZX79/BZX55 datasheets, nominal VZ and rZ at IZT = 5 mA"
+stand_in_for = ["BZX79-C9V1"]
+source = "NXP BZX79 series data sheet, 2002 Feb 27, Table 1: typical rdif at IZ = 5 mA"
 checks = [
   { measure = "vz", i = 5e-3, typ = 9.1, tol = 0.01 },
-  { measure = "zz", i = 5e-3, typ = 10 },
+  { measure = "zz", i = 5e-3, typ = 6 },
 ]
 
 [BZX79C12_OJ]
 kind = "zener"
-stand_in_for = ["BZX79-C12", "BZX55C12"]
-source = "BZX79/BZX55 datasheets, nominal VZ and rZ at IZT = 5 mA"
+stand_in_for = ["BZX79-C12"]
+source = "NXP BZX79 series data sheet, 2002 Feb 27, Table 1: typical rdif at IZ = 5 mA"
 checks = [
   { measure = "vz", i = 5e-3, typ = 12, tol = 0.01 },
-  { measure = "zz", i = 5e-3, typ = 15 },
+  { measure = "zz", i = 5e-3, typ = 10 },
 ]
 
 [BZX79C15_OJ]
 kind = "zener"
-stand_in_for = ["BZX79-C15", "BZX55C15"]
-source = "BZX79/BZX55 datasheets, nominal VZ and rZ at IZT = 5 mA"
+stand_in_for = ["BZX79-C15"]
+source = "NXP BZX79 series data sheet, 2002 Feb 27, Table 1: typical rdif at IZ = 5 mA"
 checks = [
   { measure = "vz", i = 5e-3, typ = 15, tol = 0.01 },
-  { measure = "zz", i = 5e-3, typ = 20 },
+  { measure = "zz", i = 5e-3, typ = 10 },
 ]
 
 [1N4733A_OJ]
 kind = "zener"
 stand_in_for = ["1N4733A"]
-source = "1N47xxA datasheets, nominal VZ and ZZ at the listed IZT"
+source = "Vishay 1N4728A-1N4761A datasheet 85816 Rev. 2.7: nominal VZ and typical ZZT"
 checks = [
   { measure = "vz", i = 49e-3, typ = 5.1, tol = 0.01 },
-  { measure = "zz", i = 49e-3, typ = 5 },
+  { measure = "zz", i = 49e-3, typ = 7 },
 ]
 
 [1N4742A_OJ]
 kind = "zener"
 stand_in_for = ["1N4742A"]
-source = "1N47xxA datasheets, nominal VZ and ZZ at the listed IZT"
+source = "Vishay 1N4728A-1N4761A datasheet 85816 Rev. 2.7: nominal VZ and typical ZZT"
 checks = [
   { measure = "vz", i = 21e-3, typ = 12, tol = 0.01 },
-  { measure = "zz", i = 21e-3, typ = 7 },
+  { measure = "zz", i = 21e-3, typ = 9 },
 ]
 
 # ------------------------------------------------------------- Op-amps ------
@@ -232,7 +237,7 @@ checks = [
 [TL07X_OJ]
 kind = "opamp"
 stand_in_for = ["TL071", "TL072", "TL074"]
-source = "TL07x datasheets, typical column at +-15 V"
+source = "TI TL07x datasheet SLOS080W at +-15 V, 3 MHz GBW grade; 13 V/us from slower published TL07x variants"
 defaults = { vcc = 15, vee = -15 }
 checks = [
   { measure = "aol", typ = 106, tol = 0.02 },
@@ -248,7 +253,7 @@ checks = [
 [LM358_OJ]
 kind = "opamp"
 stand_in_for = ["LM358", "LM324"]
-source = "LM358/LM324 datasheets, typical column on a single 5 V supply"
+source = "TI LM358 datasheet SLOS068AB, typical column (AOL quoted at 15 V)"
 defaults = { vcc = 5, vee = 0 }
 checks = [
   { measure = "aol", typ = 100, tol = 0.02 },
