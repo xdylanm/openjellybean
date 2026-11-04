@@ -216,6 +216,20 @@ class MutatedModels(unittest.TestCase):
         self.assert_fails(self.damaged("Ra a w {max(R*FRAC,1e-3)}", "Ra a w {max(R*(1-FRAC),1e-3)}"),
                           "POT_OJ", "ratio")
 
+    def test_lm324_with_swapped_inputs(self):
+        self.assert_fails(self.damaged("XB inp2 inn2 vcc vee out2 section", "XB inn2 inp2 vcc vee out2 section"),
+                          "LM324_QUAD_OJ", "section 2")
+
+    def test_lm324_with_lm358_supply_current(self):
+        self.assert_fails(self.damaged("IQ=0.175m", "IQ=0.35m"), "LM324_QUAD_OJ", "iq_total")
+
+    def test_lm324_with_lm358_speed(self):
+        self.assert_fails(self.damaged("GBW=1.34e6 SR=0.5e6", "GBW=0.8e6 SR=0.3e6"), "LM324_QUAD_OJ", "gbw")
+
+    def test_led_with_wrong_forward_voltage(self):
+        self.assert_fails(self.damaged("LED_BLUE_OJ D(IS=1.4e-10 N=6", "LED_BLUE_OJ D(IS=1.4e-7 N=6"),
+                          "LED_BLUE_OJ", "vf")
+
     def test_opamp_with_broken_netlist_reports_a_failure(self):
         self.assert_fails(self.damaged("Rint int mid {AOL/GM}", "Rint int mid {NOPE}"), "TL07X_OJ", "could not")
 

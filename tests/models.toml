@@ -248,6 +248,48 @@ checks = [
   { measure = "zz", i = 21e-3, typ = 9 },
 ]
 
+# ---------------------------------------------------------------- LEDs ------
+[LED_RED_OJ]
+kind = "led"
+stand_in_for = ["generic high-efficiency red 5 mm LED"]
+source = "Kingbright WP7113ID V.14A: table VF and IR, and typical VF read by eye from its curve"
+checks = [
+  { measure = "vf", i = 1e-3, typ = 1.6, tol = 0.05 },
+  { measure = "vf", i = 4e-3, typ = 1.79, tol = 0.05 },
+  { measure = "vf", i = 10e-3, typ = 1.9, tol = 0.03 },
+  { measure = "vf", i = 10e-3, max = 2.3 },
+  { measure = "vf", i = 20e-3, typ = 2.01, tol = 0.05 },
+  { measure = "ir", vr = 5, max = 10e-6 },
+]
+
+[LED_GREEN_OJ]
+kind = "led"
+stand_in_for = ["generic green 5 mm LED"]
+source = "Kingbright WP7113GD V.12B: table VF, IR and capacitance, and typical VF read by eye from its curve"
+checks = [
+  { measure = "vf", i = 1e-3, typ = 1.84, tol = 0.05 },
+  { measure = "vf", i = 4e-3, typ = 1.92, tol = 0.05 },
+  { measure = "vf", i = 10e-3, typ = 2.0, tol = 0.03 },
+  { measure = "vf", i = 10e-3, max = 2.4 },
+  { measure = "vf", i = 20e-3, typ = 2.2, tol = 0.05 },
+  { measure = "ir", vr = 5, max = 10e-6 },
+  { measure = "ct", vr = 0, typ = 15e-12 },
+]
+
+[LED_BLUE_OJ]
+kind = "led"
+stand_in_for = ["generic InGaN blue 5 mm LED"]
+source = "Kingbright WP7113QBC/D V.18B: table VF and IR, and typical VF read by eye from its curve"
+checks = [
+  { measure = "vf", i = 1e-3, typ = 2.45, tol = 0.05 },
+  { measure = "vf", i = 5e-3, typ = 2.72, tol = 0.05 },
+  { measure = "vf", i = 10e-3, typ = 2.93, tol = 0.05 },
+  { measure = "vf", i = 20e-3, typ = 3.3, tol = 0.03 },
+  { measure = "vf", i = 20e-3, max = 4.0 },
+  { measure = "vf", i = 30e-3, typ = 3.53, tol = 0.05 },
+  { measure = "ir", vr = 5, max = 50e-6 },
+]
+
 # ------------------------------------------------------------- Op-amps ------
 [OPAMP_OJ]
 kind = "opamp"
@@ -312,6 +354,27 @@ checks = [
   { measure = "vout_min", max = 0.02 },
   { measure = "iq", typ = 0.35e-3 },
   { measure = "isc", min = 10e-3, max = 60e-3 },
+]
+
+[LM358_DUAL_OJ]
+kind = "opamp2"
+stand_in_for = ["LM358"]
+source = "TI LM358 datasheet SLOS068AB: 8-pin pin table, IQ per amplifier at 5 V"
+defaults = { vcc = 5, vee = 0 }
+checks = [
+  { measure = "iq_total", typ = 0.7e-3 },
+]
+
+[LM324_QUAD_OJ]
+kind = "opamp4"
+stand_in_for = ["LM324"]
+source = "TI LM324 datasheet SLOS066AE: 14-pin pin table, supply current for four amplifiers at 5 V, B1 and SR"
+defaults = { vcc = 5, vee = 0 }
+checks = [
+  { measure = "iq_total", typ = 0.7e-3 },
+  { measure = "gbw", vcc = 15, vee = -15, rl = 1e6, typ = 1.2e6 },
+  { measure = "pm", vcc = 15, vee = -15, rl = 1e6, min = 45 },
+  { measure = "sr", vcc = 15, vee = -15, rl = 1e6, typ = 0.5e6 },
 ]
 
 # ------------------------------------------------------- Potentiometers -----

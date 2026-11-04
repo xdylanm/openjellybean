@@ -16,7 +16,7 @@ from harness import crossing, interp_log
 
 BJT = ("npn", "pnp")
 MOSFET = ("nmos", "pmos")
-DIODE = ("diode", "schottky", "zener")
+DIODE = ("diode", "schottky", "zener", "led")
 OPAMP = ("opamp",)
 PACKAGE = ("opamp2", "opamp4")
 POT = ("pot",)
@@ -37,7 +37,7 @@ PIN_LABELS = {
 }
 
 _PREFIX = {"npn": "Q", "pnp": "Q", "nmos": "M", "pmos": "M",
-           "diode": "D", "schottky": "D", "zener": "D", "opamp": "X"}
+           "diode": "D", "schottky": "D", "zener": "D", "led": "D", "opamp": "X"}
 TWO_PI = 2 * math.pi
 
 
@@ -53,9 +53,19 @@ class Bench:
 
     def part(self, *nodes):
         """Instance line for the device under test, wired to nodes in SPICE pin order."""
+        if self.kind in PACKAGE and len(nodes) == 5:
+            return self._first_section(*nodes)
         prefix = "X" if self.device.statement == "subckt" else _PREFIX[self.kind]
         suffix = f" params: {self.params}" if self.params else ""
         return f"{prefix}1 {' '.join(nodes)} {self.device.name}{suffix}"
+
+    def _first_section(self, inp, inn, vcc, vee, out):
+        """Package with section 1 on the given nodes and the rest as idle followers."""
+        nodes = {"vcc": vcc, "vee": vee, "inp1": inp, "inn1": inn, "out1": out}
+        for k in range(2, _sections(self.kind) + 1):
+            nodes |= {f"inp{k}": "idle", f"inn{k}": f"idle_out{k}", f"out{k}": f"idle_out{k}"}
+        wiring = (nodes[pin] for pin in PACKAGE_PINS[self.kind])
+        return f"Ri1 {vcc} idle 1Meg\nRi2 idle {vee} 1Meg\n" + self.part(*wiring)
 
 
 @dataclass
@@ -219,7 +229,7 @@ def vsd(b, *, i):
 
 
 # ---------------------------------------------------------------- Diodes ----
-@measure(DIODE, "V", required=("diode", "schottky"))
+@measure(DIODE, "V", required=("diode", "schottky", "led"))
 def vf(b, *, i):
     """Forward voltage."""
     return b.sim.op(f"I1 0 a {i}\n{b.part('a', '0')}", "v(a)")[0]
@@ -285,20 +295,20 @@ def _open_loop(b, vcc, vee, rl):
     return f, db, [math.degrees(r) for r in degrees]
 
 
-@measure(OPAMP, "dB", required=True)
+@measure(OPAMP + PACKAGE, "dB", required=OPAMP)
 def aol(b, *, vcc=15.0, vee=-15.0, rl=10e3):
     """Open-loop DC gain."""
     return _open_loop(b, vcc, vee, rl)[1][0]
 
 
-@measure(OPAMP, "Hz", required=True)
+@measure(OPAMP + PACKAGE, "Hz", required=OPAMP)
 def gbw(b, *, vcc=15.0, vee=-15.0, rl=10e3):
     """Unity-gain frequency of the open-loop response."""
     f, db, _ = _open_loop(b, vcc, vee, rl)
     return crossing(f, db, 0.0, rising=False)
 
 
-@measure(OPAMP, "deg")
+@measure(OPAMP + PACKAGE, "deg")
 def pm(b, *, vcc=15.0, vee=-15.0, rl=10e3):
     """Phase margin at the unity-gain frequency."""
     f, db, phase = _open_loop(b, vcc, vee, rl)
@@ -307,7 +317,7 @@ def pm(b, *, vcc=15.0, vee=-15.0, rl=10e3):
     return 180 - lag
 
 
-@measure(OPAMP, "V/s", required=True)
+@measure(OPAMP + PACKAGE, "V/s", required=OPAMP)
 def sr(b, *, vcc=15.0, vee=-15.0, rl=10e3, t_settle=500e-6):
     """Rising slew rate of a unity follower, 20-80 % of the step (t_settle must span the edge)."""
     mid = (vcc + vee) / 2
@@ -329,13 +339,13 @@ def _saturate(b, vcc, vee, rl, high):
                     f"{b.part('inp', 'inn', 'vcc', 'vee', 'out')}\nRL out 0 {rl}", "v(out)")[0]
 
 
-@measure(OPAMP, "V", required=True)
+@measure(OPAMP + PACKAGE, "V", required=OPAMP)
 def vout_max(b, *, vcc=15.0, vee=-15.0, rl=10e3):
     """Highest output voltage (load returned to ground)."""
     return _saturate(b, vcc, vee, rl, high=True)
 
 
-@measure(OPAMP, "V", required=True)
+@measure(OPAMP + PACKAGE, "V", required=OPAMP)
 def vout_min(b, *, vcc=15.0, vee=-15.0, rl=10e3):
     """Lowest output voltage (load returned to ground)."""
     return _saturate(b, vcc, vee, rl, high=False)
@@ -464,6 +474,17 @@ def _behaviour_diode(b, **_):
     return checks
 
 
+def _behaviour_led(b, **_):
+    forward = b.sim.op(f"I1 0 a 10m\n{b.part('a', '0')}", "v(a)")[0]
+    dim = b.sim.op(f"V1 a 0 1\n{b.part('a', '0')}", "abs(i(V1))")[0]
+    reverse = b.sim.op(f"V1 k 0 5\n{b.part('0', 'k')}", "abs(i(V1))")[0]
+    return [
+        ("forward drop plausible at 10 mA", 1.4 < forward < 3.6, f"VF={eng(forward, 'V')}"),
+        ("stays off at 1 V forward", dim < 10e-6, f"IF={eng(dim, 'A')}"),
+        ("blocks at 5 V reverse", reverse < 100e-6, f"IR={eng(reverse, 'A')}"),
+    ]
+
+
 def _behaviour_opamp(b, *, vcc=15.0, vee=-15.0, **_):
     mid = (vcc + vee) / 2
     sup = _supplies(vcc, vee)
@@ -528,7 +549,7 @@ BEHAVIOUR = {"npn": _behaviour_bjt, "pnp": _behaviour_bjt,
              "nmos": _behaviour_mosfet, "pmos": _behaviour_mosfet,
              "diode": _behaviour_diode, "schottky": _behaviour_diode, "zener": _behaviour_diode,
              "opamp": _behaviour_opamp,
-             "opamp2": _behaviour_package, "opamp4": _behaviour_package, "pot": _behaviour_pot}
+             "led": _behaviour_led, "opamp2": _behaviour_package, "opamp4": _behaviour_package, "pot": _behaviour_pot}
 
 
 def eng(value, unit=""):

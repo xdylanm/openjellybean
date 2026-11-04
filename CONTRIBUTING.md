@@ -49,7 +49,7 @@ logos or names in a way that suggests a model is official.
   |---|---|---|
   | BJT | `.model NAME NPN(...)` or `PNP(...)` | C B E |
   | MOSFET | `.model NAME VDMOS(...)`, adding `pchan` for P-channel | D G S |
-  | Diode, Schottky | `.model NAME D(...)` | A K |
+  | Diode, Schottky, LED | `.model NAME D(...)` | A K |
   | Zener | `.subckt` wrapping `ZENER_OJ`, or `.model NAME D(... BV=...)` | A K |
   | Op-amp | `.subckt` wrapping `OPAMP_OJ`; one amplifier section | +IN -IN V+ V- OUT |
   | Dual op-amp package (`opamp2`) | `.subckt` wrapping two sections | 1OUT 1IN- 1IN+ V- 2IN+ 2IN- 2OUT V+ |
@@ -74,7 +74,7 @@ against:
 
 ```toml
 [BC337_OJ]
-kind = "npn"                  # npn pnp nmos pmos diode schottky zener opamp opamp2 opamp4 pot
+kind = "npn"                  # npn pnp nmos pmos diode schottky zener led opamp opamp2 opamp4 pot
 stand_in_for = ["BC337-25"]   # the real parts
 source = "BC337 datasheet, typical column"
 checks = [
@@ -141,9 +141,10 @@ because each one is another way to catch a bad fit.
 | `npn`, `pnp` | `hfe`, `vcesat`, `ft` | `vbe`, `vbesat`, `hoe`, `cobo`, `cibo` |
 | `nmos`, `pmos` | `vth`, `rdson` | `ciss`, `coss`, `crss`, `vsd` |
 | `diode`, `schottky` | `vf` | `ir`, `ct`, `trr` |
+| `led` | `vf` | `ir`, `ct` |
 | `zener` | `vz`, `zz` | `vf`, `ir`, `ct` |
 | `opamp` | `aol`, `gbw`, `sr`, `iq`, `vout_max`, `vout_min` | `pm`, `isc`, `vos` |
-| `opamp2`, `opamp4` | `iq_total` | |
+| `opamp2`, `opamp4` | `iq_total` | `aol`, `gbw`, `pm`, `sr`, `vout_max`, `vout_min` (section 1) |
 | `pot` | `rab`, `ratio` | `raw`, `rwb` |
 
 Include `pm` for any op-amp that isn't purely parametric, so that an unstable fit fails.

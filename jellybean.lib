@@ -124,6 +124,18 @@ X1 a k ZENER_OJ params: VZ=5.1 IZT=49m RZ=7 NK=2
 X1 a k ZENER_OJ params: VZ=12 IZT=21m RZ=9 NK=1
 .ends
 
+* ---------------------------------------------------------------- LEDs ------
+* Generic 5 mm indicator LEDs, one color each:  D1 a k LED_RED_OJ
+* LED_RED_OJ   : high-efficiency red, VF about 1.9 V at 10 mA
+* LED_GREEN_OJ : standard green, VF about 2.0 V at 10 mA
+* LED_BLUE_OJ  : InGaN blue, VF about 3.3 V at 20 mA
+.model LED_RED_OJ D(IS=1.4n N=4.64 RS=1.7 BV=10 IBV=10u
++ CJO=15p VJ=0.75 M=0.33 TT=0 EG=2.46 XTI=0)
+.model LED_GREEN_OJ D(IS=1.1e-18 N=2 RS=10 BV=10 IBV=10u
++ CJO=15p VJ=0.75 M=0.33 TT=0 EG=2.44 XTI=0)
+.model LED_BLUE_OJ D(IS=1.4e-10 N=6 RS=19.7 BV=10 IBV=10u
++ CJO=65p VJ=0.75 M=0.33 TT=0 EG=3.8 XTI=0)
+
 * ------------------------------------------------------------- Op-amps ------
 * Pin order (TI / LTspice convention):  +IN  -IN  V+  V-  OUT
 * Generic single-pole + second-pole macromodel with slew limit, output swing
@@ -199,6 +211,27 @@ XD inp4 inn4 vcc vee out4 TL07X_OJ
 X1 inp inn vcc vee out OPAMP_OJ params: GBW=0.8e6 SR=0.3e6 AOL=100k IB=-20n
 + RIN=10Meg CIN=3p ISC=30m IQ=0.35m VOH=1.5 VOL=0.02 ROUT=100 FP2=1.5e6
 .ends LM358_OJ
+
+* LM358_DUAL_OJ : complete dual package, pins 1-8 in order:
+*   1OUT 1IN- 1IN+ GND 2IN+ 2IN- 2OUT VCC+
+.subckt LM358_DUAL_OJ out1 inn1 inp1 vee inp2 inn2 out2 vcc
+XA inp1 inn1 vcc vee out1 LM358_OJ
+XB inp2 inn2 vcc vee out2 LM358_OJ
+.ends LM358_DUAL_OJ
+
+* LM324_QUAD_OJ : complete quad package, pins 1-14 in order:
+*   1OUT 1IN- 1IN+ VCC+ 2IN+ 2IN- 2OUT 3OUT 3IN- 3IN+ GND 4IN+ 4IN- 4OUT
+*   Sections follow the LM324's own datasheet: faster than LM358_OJ, half the supply current.
+.subckt LM324_QUAD_OJ out1 inn1 inp1 vcc inp2 inn2 out2 out3 inn3 inp3 vee inp4 inn4 out4
+.subckt section inp inn vcc vee out
+X1 inp inn vcc vee out OPAMP_OJ params: GBW=1.34e6 SR=0.5e6 AOL=100k IB=-20n
++ RIN=10Meg CIN=3p ISC=30m IQ=0.175m VOH=1.5 VOL=0.02 ROUT=100 FP2=2.5e6
+.ends section
+XA inp1 inn1 vcc vee out1 section
+XB inp2 inn2 vcc vee out2 section
+XC inp3 inn3 vcc vee out3 section
+XD inp4 inn4 vcc vee out4 section
+.ends LM324_QUAD_OJ
 
 * ------------------------------------------------------- Potentiometers -----
 * Generic linear potentiometer:  X1 a w b POT_OJ params: R=10k POS=0.5

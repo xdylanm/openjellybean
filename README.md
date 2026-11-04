@@ -17,6 +17,9 @@ X2  a k    ZENER_OJ params: VZ=8.2 IZT=5m RZ=10 NK=1   ; any voltage
 XU1 inp inn vcc vee out TL07X_OJ   ; op-amp: +IN -IN V+ V- OUT
 XU2 o1 n1 p1 vee p2 n2 o2 vcc TL072_OJ   ; complete dual: pins 1-8 in order
 XU3 o1 n1 p1 vcc p2 n2 o2 o3 n3 p3 vee p4 n4 o4 TL074_OJ   ; complete quad: pins 1-14 in order
+XU4 o1 n1 p1 gnd p2 n2 o2 vcc LM358_DUAL_OJ   ; complete dual: pins 1-8 in order
+XU5 o1 n1 p1 vcc p2 n2 o2 o3 n3 p3 gnd p4 n4 o4 LM324_QUAD_OJ   ; complete quad: pins 1-14 in order
+D2  a k   LED_RED_OJ            ; LED: A K (also LED_GREEN_OJ, LED_BLUE_OJ)
 XR1 a w b POT_OJ params: R=10k POS=0.25   ; pot: A WIPER B; POS 0 = at A, 1 = at B
 ```
 
@@ -52,11 +55,16 @@ XR1 a w b POT_OJ params: R=10k POS=0.25   ; pot: A WIPER B; POS 0 = at A, 1 = at
 | | | CT 110 pF @ 4 V | 115 pF |
 | `BZX79C{3V3,4V7,5V1,5V6,6V2,9V1,12,15}_OJ` | BZX79 500 mW | VZ and rZ at IZT = 5 mA | exact by construction |
 | `1N4733A_OJ`, `1N4742A_OJ` | 1N47xxA 1 W | 5.1 V / 12 V at datasheet IZT | exact by construction |
+| `LED_RED_OJ` | Generic red | VF 1.6 / 1.79 / 1.9 / 2.01 V @ 1 / 4 / 10 / 20 mA | 1.62 / 1.79 / 1.91 / 2.01 V |
+| `LED_GREEN_OJ` | Generic green | VF 1.84 / 1.92 / 2.0 / 2.2 V @ 1 / 4 / 10 / 20 mA; C 15 pF | 1.79 / 1.89 / 2.00 / 2.14 V; 15 pF |
+| `LED_BLUE_OJ` | Generic InGaN blue | VF 2.45 / 2.72 / 2.93 / 3.3 / 3.53 V @ 1 / 5 / 10 / 20 / 30 mA | 2.47 / 2.80 / 3.00 / 3.31 / 3.57 V |
 | `TL07X_OJ` (one section) | TL071/072/074 | AOL 106 dB, GBW 3 MHz, SR 13 V/µs | 106 dB, 2.9 MHz (57° PM), 12.9 V/µs |
 | | | ±13.5 V into 10 kΩ @ ±15 V, IQ 1.4 mA | ±13.38 V, 1.4 mA |
 | `TL072_OJ`, `TL074_OJ` | TL072, TL074 | Complete packages in pin order; IQ 2.8 / 5.6 mA | every section checked; 2.8 / 5.6 mA |
 | `LM358_OJ` (one section) | LM358, LM324 | GBW 0.7 MHz, SR 0.3 V/µs, AOL 100 dB | 0.72 MHz, 0.3 V/µs, 100 dB |
 | | | swings to ~V− at light load, V+ − 1.5 V | 6 mV / V+ − 1.52 V into 10 kΩ |
+| `LM358_DUAL_OJ`, `LM324_QUAD_OJ` | LM358, LM324 | Complete packages in pin order; IQ 0.7 mA at 5 V | every section checked; 0.7 mA |
+| | | LM324: 1.2 MHz, 0.5 V/µs | 1.21 MHz (65° PM), 0.50 V/µs |
 
 Rerun every check with `python tests/validate.py`, or name models to check only
 those. It needs ngspice 47 or later and Python 3.13 or later, with nothing to install from pip. If
@@ -90,6 +98,12 @@ wiper position with `POS`; its values are exact by construction.
 * `TL07X_OJ` matches the slower published TL07x figures, 3 MHz and 13 V/µs; some current
   versions reach 5.25 MHz and 20 V/µs. `BC557B_OJ` also uses a slower figure, fT = 150 MHz;
   some datasheets list up to 320 MHz.
+* The LED models are electrical only, with no light output. They represent one typical
+  chemistry per color: green LEDs made with InGaN run near 3.2 V instead of 2.0 V, and red
+  varies with chemistry too. Reverse breakdown is not fitted, and only the green capacitance
+  is checked against a datasheet.
+* `LM358_OJ` used as one LM324 section is slower and draws twice the supply current of a real
+  LM324. Use `LM324_QUAD_OJ` for the LM324's own figures.
 * `POT_OJ` is linear only, with no log taper, power limit or temperature coefficient.
 * Tested in ngspice 47 only; LTspice should accept the syntax
   but hasn't been run.
