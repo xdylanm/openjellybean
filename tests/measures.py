@@ -215,6 +215,13 @@ def ir(b, *, vr):
     return b.sim.op(f"V1 k 0 {vr}\n{b.part('0', 'k')}", "abs(i(V1))")[0]
 
 
+@measure(DIODE, "F")
+def ct(b, *, vr, f=1e6):
+    """Total capacitance at a reverse voltage."""
+    _, i = b.sim.run(f"V1 k 0 dc {vr} ac 1\n{b.part('0', 'k')}", f"ac lin 1 {f} {f}", ["mag(i(V1))"])
+    return i[0] / (TWO_PI * f)
+
+
 @measure(("diode", "schottky"), "s")
 def trr(b, *, i_f=10e-3, i_r=10e-3, i_stop=1e-3, r=1e3, t_flip=100e-9, t_rec=30e-9):
     """Reverse recovery, reversal to i_stop. Slow rectifiers need larger t_flip and t_rec."""

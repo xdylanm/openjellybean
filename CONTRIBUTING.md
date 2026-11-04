@@ -137,8 +137,8 @@ because each one is another way to catch a bad fit.
 |---|---|---|
 | `npn`, `pnp` | `hfe`, `vcesat`, `ft` | `vbe`, `vbesat`, `hoe`, `cobo`, `cibo` |
 | `nmos`, `pmos` | `vth`, `rdson` | `ciss`, `coss`, `crss`, `vsd` |
-| `diode`, `schottky` | `vf` | `ir`, `trr` |
-| `zener` | `vz`, `zz` | `vf`, `ir` |
+| `diode`, `schottky` | `vf` | `ir`, `ct`, `trr` |
+| `zener` | `vz`, `zz` | `vf`, `ir`, `ct` |
 | `opamp` | `aol`, `gbw`, `sr`, `iq`, `vout_max`, `vout_min` | `pm`, `isc`, `vos` |
 
 Include `pm` for any op-amp that isn't purely parametric, so that an unstable fit fails.

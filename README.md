@@ -43,6 +43,10 @@ XU1 inp inn vcc vee out TL07X_OJ   ; op-amp: +IN -IN V+ V- OUT
 | `1N4148_OJ` | 1N4148, 1N914 | VF 0.61 / 0.72 / 0.875 V @ 1 / 10 / 100 mA | 0.611 / 0.729 / 0.920 V |
 | | | trr ≤ 8 ns (10 mA → 10 mA → 1 mA); ≤ 4 ns (10 mA, 6 V, 100 Ω) | 3.97 ns; 0.67 ns |
 | `1N5819_OJ` Schottky | 1N5819 | VF 0.30 / 0.42 / 0.55 V @ 0.1 / 1 / 3 A | 0.306 / 0.419 / 0.563 V |
+| `BAT54_OJ` Schottky | BAT54 | VF 0.22 / 0.29 / 0.35 / 0.41 / 0.52 V @ 0.1 / 1 / 10 / 30 / 100 mA | 0.230 / 0.290 / 0.360 / 0.410 / 0.518 V |
+| | | CT 7.6 pF @ 1 V; trr ≤ 5 ns (10 mA → 10 mA → 1 mA, 100 Ω) | 7.6 pF; 2.65 ns |
+| `B140_OJ` Schottky | B140, SB140 | VF ≤ 0.5 V @ 1 A; typ 0.33 / 0.44 / 0.61 / 1.07 V @ 0.1 / 1 / 3 / 10 A | 0.346 / 0.461 / 0.613 / 1.08 V |
+| | | CT 110 pF @ 4 V | 115 pF |
 | `BZX79C{3V3,4V7,5V1,5V6,6V2,9V1,12,15}_OJ` | BZX79 500 mW | VZ and rZ at IZT = 5 mA | exact by construction |
 | `1N4733A_OJ`, `1N4742A_OJ` | 1N47xxA 1 W | 5.1 V / 12 V at datasheet IZT | exact by construction |
 | `TL07X_OJ` (one section) | TL071/072/074 | AOL 106 dB, GBW 3 MHz, SR 13 V/µs | 106 dB, 2.9 MHz (57° PM), 12.9 V/µs |
@@ -74,7 +78,8 @@ The targets and tolerances live in [`tests/models.toml`](tests/models.toml). See
 * These typical values are not matched, because fixing them would mean changing the
   model structure or trading off other fits: 1N5819 leakage is 1.6 µA at 40 V (about
   20 µA on the datasheet curve), 1N4148 leakage is 2.9 nA at 20 V (about 9 nA), and
-  LM358 short-circuit current is 27 mA (40 mA typ at a 10 V supply).
+  LM358 short-circuit current is 27 mA (40 mA typ at a 10 V supply). BAT54 leakage is
+  14 nA at 25 V (0.2 µA typ), and B140 leakage is 0.2 µA at 40 V (about 1.7 µA).
 * `TL07X_OJ` matches the slower published TL07x figures, 3 MHz and 13 V/µs; some current
   versions reach 5.25 MHz and 20 V/µs. `BC557B_OJ` also uses a slower figure, fT = 150 MHz;
   some datasheets list up to 320 MHz.

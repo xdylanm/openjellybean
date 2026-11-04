@@ -118,6 +118,36 @@ checks = [
   { measure = "ir", vr = 40, max = 1e-3 },
 ]
 
+[BAT54_OJ]
+kind = "schottky"
+stand_in_for = ["BAT54"]
+source = "onsemi BAT54T1/D Rev. 12, typical column; Diodes DS11005 Rev. 35 for the trr load"
+checks = [
+  { measure = "vf", i = 0.1e-3, typ = 0.22, tol = 0.05 },
+  { measure = "vf", i = 1e-3, typ = 0.29, tol = 0.05 },
+  { measure = "vf", i = 10e-3, typ = 0.35, tol = 0.05 },
+  { measure = "vf", i = 30e-3, typ = 0.41, tol = 0.05 },
+  { measure = "vf", i = 100e-3, typ = 0.52, tol = 0.05 },
+  { measure = "ir", vr = 25, max = 2e-6 },
+  { measure = "ct", vr = 1, typ = 7.6e-12 },
+  { measure = "ct", vr = 10, typ = 3.4e-12 },
+  { measure = "trr", i_f = 10e-3, i_r = 10e-3, i_stop = 1e-3, r = 100, max = 5e-9 },
+]
+
+[B140_OJ]
+kind = "schottky"
+stand_in_for = ["B140", "SB140"]
+source = "Diodes DS13002 Rev. 21: limits, CT, and typical VF read by eye from Fig. 1"
+checks = [
+  { measure = "vf", i = 0.1, typ = 0.33, tol = 0.08 },
+  { measure = "vf", i = 1, typ = 0.44, tol = 0.06 },
+  { measure = "vf", i = 1, max = 0.5 },
+  { measure = "vf", i = 3, typ = 0.61, tol = 0.05 },
+  { measure = "vf", i = 10, typ = 1.07, tol = 0.05 },
+  { measure = "ir", vr = 40, max = 0.5e-3 },
+  { measure = "ct", vr = 4, typ = 110e-12 },
+]
+
 # ------------------------------------------------------------- Zeners -------
 [ZENER_OJ]
 kind = "zener"

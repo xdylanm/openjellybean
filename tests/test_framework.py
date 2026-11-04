@@ -178,6 +178,9 @@ class MutatedModels(unittest.TestCase):
     def test_slow_diode(self):
         self.assert_fails(self.damaged("TT=2.5n", "TT=25n"), "1N4148_OJ", "trr")
 
+    def test_wrong_capacitance(self):
+        self.assert_fails(self.damaged("CJO=13.5p", "CJO=40p"), "BAT54_OJ", "ct")
+
     def test_wrong_zener_voltage(self):
         self.assert_fails(self.damaged("params: VZ=5.1 IZT=5m RZ=40 NK=2", "params: VZ=5.6 IZT=5m RZ=40 NK=2"),
                           "BZX79C5V1_OJ", "vz")
