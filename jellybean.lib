@@ -10,7 +10,7 @@
 * Names end in _OJ so they never collide with vendor models in the same tree.
 *
 * Tested with ngspice 47. Uses only standard SPICE syntax plus the VDMOS
-* model (ngspice >= 32, LTspice) and subcircuit params: (ngspice, LTspice).
+* model (ngspice >= 47, LTspice) and subcircuit params: (ngspice, LTspice).
 * =============================================================================
 
 * ---------------------------------------------------------------- BJTs ------

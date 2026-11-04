@@ -60,7 +60,7 @@ logos or names in a way that suggests a model is official.
 
 ## Adding a model
 
-You need [ngspice](https://ngspice.sourceforge.io/) (version 32 or later for VDMOS) and
+You need [ngspice](https://ngspice.sourceforge.io/) version 47 or later and
 Python 3.13 or later. There is nothing to install from pip. If ngspice isn't on your
 `PATH`, set the `NGSPICE` environment variable to its location.
 

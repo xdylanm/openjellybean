@@ -50,7 +50,7 @@ XU1 inp inn vcc vee out TL07X_OJ   ; op-amp: +IN -IN V+ V- OUT
 | | | swings to ~V− at light load, V+ − 1.5 V | 6 mV / V+ − 1.52 V into 10 kΩ |
 
 Rerun every check with `python tests/validate.py`, or name models to check only
-those. It needs ngspice and Python 3.13 or later, with nothing to install from pip. If
+those. It needs ngspice 47 or later and Python 3.13 or later, with nothing to install from pip. If
 ngspice isn't on your `PATH`, set the `NGSPICE` environment variable to its location.
 
 The targets and tolerances live in [`tests/models.toml`](tests/models.toml). See
@@ -63,12 +63,12 @@ The targets and tolerances live in [`tests/models.toml`](tests/models.toml). See
   editing BF, VTO etc.
 * BJTs: no breakdown or quasi-saturation modelled. Temperature uses standard
   SPICE coefficients (not fitted).
-* MOSFETs use the VDMOS model (ngspice ≥ 32, LTspice). For PSpice you would need
+* MOSFETs use the VDMOS model (ngspice ≥ 47, LTspice). For PSpice you would need
   a subcircuit rewrite.
 * Zeners: VZ temperature coefficient and noise not modelled; knee shape is
   approximate.
 * Op-amps: no input common-mode range limits or phase reversal, no noise,
   CMRR/PSRR, offset drift, or LM358 crossover distortion. VOS defaults to 0 —
   use `OPAMP_OJ params: VOS=3m ...` to add offset.
-* Fitted in ngspice 42 and verified in ngspice 47; LTspice should accept the syntax
+* Tested in ngspice 47 only; LTspice should accept the syntax
   but hasn't been run.

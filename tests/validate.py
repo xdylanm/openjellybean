@@ -5,7 +5,7 @@
     python tests/validate.py BC547B_OJ        check one model (or several)
     python tests/validate.py --measures       list what models.toml can ask for
 
-Exits 0 only if every check passes. Needs ngspice and Python >= 3.13, nothing else.
+Exits 0 only if every check passes. Needs ngspice >= 47 and Python >= 3.13, nothing else.
 """
 import argparse
 import inspect
