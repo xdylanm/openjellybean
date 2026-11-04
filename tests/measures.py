@@ -18,7 +18,23 @@ BJT = ("npn", "pnp")
 MOSFET = ("nmos", "pmos")
 DIODE = ("diode", "schottky", "zener")
 OPAMP = ("opamp",)
-KINDS = BJT + MOSFET + DIODE + OPAMP
+PACKAGE = ("opamp2", "opamp4")
+POT = ("pot",)
+KINDS = BJT + MOSFET + DIODE + OPAMP + PACKAGE + POT
+
+# Package pins in pin-number order. Benches wire by position, so a library .subckt
+# with its pins in the wrong order fails however it names them.
+PACKAGE_PINS = {
+    "opamp2": ("out1", "inn1", "inp1", "vee", "inp2", "inn2", "out2", "vcc"),
+    "opamp4": ("out1", "inn1", "inp1", "vcc", "inp2", "inn2", "out2",
+               "out3", "inn3", "inp3", "vee", "inp4", "inn4", "out4"),
+}
+PIN_LABELS = {
+    "opamp": "+IN -IN V+ V- OUT",
+    "opamp2": "1OUT 1IN- 1IN+ V- 2IN+ 2IN- 2OUT V+",
+    "opamp4": "1OUT 1IN- 1IN+ V+ 2IN+ 2IN- 2OUT 3OUT 3IN- 3IN+ V- 4IN+ 4IN- 4OUT",
+    "pot": "A WIPER B",
+}
 
 _PREFIX = {"npn": "Q", "pnp": "Q", "nmos": "M", "pmos": "M",
            "diode": "D", "schottky": "D", "zener": "D", "opamp": "X"}
@@ -350,6 +366,56 @@ def vos(b, *, vcc=15.0, vee=-15.0):
     return abs(out - mid)
 
 
+# --------------------------------------------------------- Op-amp packages ---
+def _sections(kind):
+    return {"opamp2": 2, "opamp4": 4}[kind]
+
+
+def _package(b, vcc, vee, **overrides):
+    """Instance line with each section an idle follower at ref, except for overrides."""
+    nodes = {"vcc": "vcc", "vee": "vee"}
+    for k in range(1, _sections(b.kind) + 1):
+        nodes |= {f"inp{k}": "ref", f"inn{k}": f"out{k}", f"out{k}": f"out{k}"}
+    nodes |= overrides
+    mid = (vcc + vee) / 2
+    return _supplies(vcc, vee) + f"VM ref 0 {mid}\n" + b.part(*(nodes[pin] for pin in PACKAGE_PINS[b.kind]))
+
+
+@measure(PACKAGE, "A", required=True)
+def iq_total(b, *, vcc=15.0, vee=-15.0):
+    """Supply current of the whole package, unloaded followers at mid-supply."""
+    return b.sim.op(_package(b, vcc, vee), "abs(i(VP))")[0]
+
+
+# ----------------------------------------------------------- Potentiometers ---
+def _resistance(b, *nodes):
+    return b.sim.op(f"I1 0 a 1m\n{b.part(*nodes)}", "v(a)")[0] / 1e-3
+
+
+@measure(POT, "ohm", required=True)
+def rab(b):
+    """Total resistance from A to B."""
+    return _resistance(b, "a", "w", "0")
+
+
+@measure(POT, "ohm")
+def raw(b):
+    """Resistance from A to the wiper."""
+    return _resistance(b, "a", "0", "b")
+
+
+@measure(POT, "ohm")
+def rwb(b):
+    """Resistance from the wiper to B."""
+    return _resistance(b, "x", "a", "0")
+
+
+@measure(POT, "", required=True)
+def ratio(b):
+    """Wiper voltage as a fraction of the voltage from A to B, with B grounded."""
+    return b.sim.op(f"V1 a 0 1\n{b.part('a', 'w', '0')}", "v(w)")[0]
+
+
 # ---------------------------------------------- Automatic behaviour checks ---
 # These need no metadata beyond the kind, and catch the errors a datasheet table can
 # miss: swapped pins, wrong polarity, a device that never turns off. Each returns
@@ -424,10 +490,45 @@ def _behaviour_opamp(b, *, vcc=15.0, vee=-15.0, **_):
     ]
 
 
+def _behaviour_package(b, *, vcc=15.0, vee=-15.0, **_):
+    mid = (vcc + vee) / 2
+    d = min(1.0, (vcc - vee) / 10)
+    checks = []
+    outs = [f"out{k}" for k in range(1, _sections(b.kind) + 1)]
+    for k, out in enumerate(outs, 1):
+        # Only this section may respond: a wiring mistake moves the wrong output.
+        body = _package(b, vcc, vee, **{f"inp{k}": "in"}) + f"\nVI in 0 {mid + d}"
+        values = dict(zip(outs, b.sim.op(body, *(f"v({o})" for o in outs))))
+        others = max((abs(v - mid) for o, v in values.items() if o != out), default=0.0)
+        checks.append((f"section {k} follows its +IN, others stay idle",
+                       abs(values[out] - (mid + d)) < 0.05 and others < 0.05,
+                       f"out-mid={eng(values[out] - mid, 'V')}, others within {eng(others, 'V')}"))
+        def drive(level):
+            return b.sim.op(_package(b, vcc, vee, **{f"inp{k}": "in", f"inn{k}": "ref"})
+                            + f"\nVI in 0 {mid + level}", f"v({out})")[0]
+        high, low = drive(d), drive(-d)
+        checks.append((f"section {k} output follows +IN minus -IN (pin order)", low < mid < high,
+                       f"{eng(low, 'V')} .. {eng(high, 'V')}"))
+    return checks
+
+
+def _behaviour_pot(b, **_):
+    def at(pos):
+        return ratio(Bench(b.sim, b.device, b.kind, f"POS={pos}"))
+    start, middle, end, past = at(0), at(0.5), at(1), at(2)
+    return [
+        ("wiper reaches A at POS = 0", abs(start - 1) < 1e-3, f"ratio={start:.4f}"),
+        ("wiper is centred at POS = 0.5", abs(middle - 0.5) < 1e-3, f"ratio={middle:.4f}"),
+        ("wiper reaches B at POS = 1", abs(end) < 1e-3, f"ratio={end:.4f}"),
+        ("POS is limited to 0..1", abs(past - end) < 1e-6, f"ratio={past:.4f} at POS = 2"),
+    ]
+
+
 BEHAVIOUR = {"npn": _behaviour_bjt, "pnp": _behaviour_bjt,
              "nmos": _behaviour_mosfet, "pmos": _behaviour_mosfet,
              "diode": _behaviour_diode, "schottky": _behaviour_diode, "zener": _behaviour_diode,
-             "opamp": _behaviour_opamp}
+             "opamp": _behaviour_opamp,
+             "opamp2": _behaviour_package, "opamp4": _behaviour_package, "pot": _behaviour_pot}
 
 
 def eng(value, unit=""):

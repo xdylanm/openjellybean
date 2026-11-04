@@ -15,6 +15,9 @@ D1  a k    1N4148_OJ          ; diode:    A K
 X1  a k    BZX79C5V1_OJ       ; zener:    A K
 X2  a k    ZENER_OJ params: VZ=8.2 IZT=5m RZ=10 NK=1   ; any voltage
 XU1 inp inn vcc vee out TL07X_OJ   ; op-amp: +IN -IN V+ V- OUT
+XU2 o1 n1 p1 vee p2 n2 o2 vcc TL072_OJ   ; complete dual: pins 1-8 in order
+XU3 o1 n1 p1 vcc p2 n2 o2 o3 n3 p3 vee p4 n4 o4 TL074_OJ   ; complete quad: pins 1-14 in order
+XR1 a w b POT_OJ params: R=10k POS=0.25   ; pot: A WIPER B; POS 0 = at A, 1 = at B
 ```
 
 ## Contents and verified behaviour (ngspice 47, 27 °C)
@@ -51,6 +54,7 @@ XU1 inp inn vcc vee out TL07X_OJ   ; op-amp: +IN -IN V+ V- OUT
 | `1N4733A_OJ`, `1N4742A_OJ` | 1N47xxA 1 W | 5.1 V / 12 V at datasheet IZT | exact by construction |
 | `TL07X_OJ` (one section) | TL071/072/074 | AOL 106 dB, GBW 3 MHz, SR 13 V/µs | 106 dB, 2.9 MHz (57° PM), 12.9 V/µs |
 | | | ±13.5 V into 10 kΩ @ ±15 V, IQ 1.4 mA | ±13.38 V, 1.4 mA |
+| `TL072_OJ`, `TL074_OJ` | TL072, TL074 | Complete packages in pin order; IQ 2.8 / 5.6 mA | every section checked; 2.8 / 5.6 mA |
 | `LM358_OJ` (one section) | LM358, LM324 | GBW 0.7 MHz, SR 0.3 V/µs, AOL 100 dB | 0.72 MHz, 0.3 V/µs, 100 dB |
 | | | swings to ~V− at light load, V+ − 1.5 V | 6 mV / V+ − 1.52 V into 10 kΩ |
 
@@ -60,6 +64,9 @@ ngspice isn't on your `PATH`, set the `NGSPICE` environment variable to its loca
 
 The targets and tolerances live in [`tests/models.toml`](tests/models.toml). See
 [CONTRIBUTING.md](CONTRIBUTING.md) to add a model.
+
+`POT_OJ` is a generic linear potentiometer. Set the total resistance with `R` and the
+wiper position with `POS`; its values are exact by construction.
 
 ## Limits — read before trusting a result
 
@@ -83,5 +90,6 @@ The targets and tolerances live in [`tests/models.toml`](tests/models.toml). See
 * `TL07X_OJ` matches the slower published TL07x figures, 3 MHz and 13 V/µs; some current
   versions reach 5.25 MHz and 20 V/µs. `BC557B_OJ` also uses a slower figure, fT = 150 MHz;
   some datasheets list up to 320 MHz.
+* `POT_OJ` is linear only, with no log taper, power limit or temperature coefficient.
 * Tested in ngspice 47 only; LTspice should accept the syntax
   but hasn't been run.

@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from harness import DEFAULT_LIB, SimError, Simulator, parse_library
-from measures import BEHAVIOUR, KINDS, MEASURES, Bench, eng
+from measures import BEHAVIOUR, KINDS, MEASURES, PIN_LABELS, Bench, eng
 from smoke import run_smoke
 
 DEFAULT_SPEC = Path(__file__).with_name("models.toml")
@@ -81,9 +81,10 @@ def lint_entry(name, entry, devices):
     device = devices.get(name)
     if device is None:
         problems.append("not found in the library")
-    elif kind == "opamp":
-        if device.statement != "subckt" or len(device.pins) != 5:
-            problems.append("an op-amp must be a 5-pin .subckt: +IN -IN V+ V- OUT")
+    elif kind in PIN_LABELS:
+        expected = PIN_LABELS[kind].split()
+        if device.statement != "subckt" or len(device.pins) != len(expected):
+            problems.append(f"kind {kind} must be a {len(expected)}-pin .subckt: {PIN_LABELS[kind]}")
     elif device.statement == "subckt":
         if kind != "zener" or len(device.pins) != 2:
             problems.append(f"{kind} must be a .model" + (" or 2-pin .subckt" if kind == "zener" else ""))

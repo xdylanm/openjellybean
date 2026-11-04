@@ -126,6 +126,11 @@ class Lint(unittest.TestCase):
         del spec["BS250_OJ"]
         self.assertEqual(len(lint_coverage(spec, self.devices)), 1)
 
+    def test_package_needs_the_right_pin_count(self):
+        entry = {"kind": "opamp2", "stand_in_for": ["X"], "source": "s",
+                 "checks": [{"measure": "iq_total", "typ": 1}]}
+        self.assertIn("must be a 8-pin .subckt", "\n".join(lint_entry("TL07X_OJ", entry, self.devices)))
+
     def test_vendor_text_is_flagged(self):
         for bad in ("* Copyright 2000 Example Semiconductor",
                     "* All rights reserved.",
@@ -192,6 +197,24 @@ class MutatedModels(unittest.TestCase):
     def test_unstable_opamp(self):
         self.assert_fails(self.damaged("ROUT=100 FP2=4.5e6\n.ends TL07X_OJ", "ROUT=100 FP2=4.5e3\n.ends TL07X_OJ"),
                           "TL07X_OJ", "pm")
+
+    def test_package_with_swapped_supplies(self):
+        self.assert_fails(self.damaged(".subckt TL072_OJ out1 inn1 inp1 vee inp2 inn2 out2 vcc\n",
+                                       ".subckt TL072_OJ out1 inn1 inp1 vcc inp2 inn2 out2 vee\n"),
+                          "TL072_OJ", "behaviour")
+
+    def test_package_with_swapped_inputs(self):
+        self.assert_fails(self.damaged("XC inp3 inn3 vcc vee out3 TL07X_OJ", "XC inn3 inp3 vcc vee out3 TL07X_OJ"),
+                          "TL074_OJ", "section 3")
+
+    def test_package_with_crossed_sections(self):
+        self.assert_fails(self.damaged("XD inp4 inn4 vcc vee out4 TL07X_OJ\n.ends TL074_OJ",
+                                       "XD inp1 inn4 vcc vee out4 TL07X_OJ\n.ends TL074_OJ"),
+                          "TL074_OJ", "section 4")
+
+    def test_pot_with_reversed_wiper_travel(self):
+        self.assert_fails(self.damaged("Ra a w {max(R*FRAC,1e-3)}", "Ra a w {max(R*(1-FRAC),1e-3)}"),
+                          "POT_OJ", "ratio")
 
     def test_opamp_with_broken_netlist_reports_a_failure(self):
         self.assert_fails(self.damaged("Rint int mid {AOL/GM}", "Rint int mid {NOPE}"), "TL07X_OJ", "could not")

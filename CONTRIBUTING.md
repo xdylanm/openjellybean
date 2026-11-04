@@ -52,6 +52,9 @@ logos or names in a way that suggests a model is official.
   | Diode, Schottky | `.model NAME D(...)` | A K |
   | Zener | `.subckt` wrapping `ZENER_OJ`, or `.model NAME D(... BV=...)` | A K |
   | Op-amp | `.subckt` wrapping `OPAMP_OJ`; one amplifier section | +IN -IN V+ V- OUT |
+  | Dual op-amp package (`opamp2`) | `.subckt` wrapping two sections | 1OUT 1IN- 1IN+ V- 2IN+ 2IN- 2OUT V+ |
+  | Quad op-amp package (`opamp4`) | `.subckt` wrapping four sections | 1OUT 1IN- 1IN+ V+ 2IN+ 2IN- 2OUT 3OUT 3IN- 3IN+ V- 4IN+ 4IN- 4OUT |
+  | Potentiometer (`pot`) | `.subckt` with `R` and `POS` parameters | A WIPER B |
 
 - **Comment the model.** Add one line above it saying what it is, and put it in the
   matching section of `jellybean.lib`.
@@ -71,7 +74,7 @@ against:
 
 ```toml
 [BC337_OJ]
-kind = "npn"                  # npn pnp nmos pmos diode schottky zener opamp
+kind = "npn"                  # npn pnp nmos pmos diode schottky zener opamp opamp2 opamp4 pot
 stand_in_for = ["BC337-25"]   # the real parts
 source = "BC337 datasheet, typical column"
 checks = [
@@ -140,6 +143,8 @@ because each one is another way to catch a bad fit.
 | `diode`, `schottky` | `vf` | `ir`, `ct`, `trr` |
 | `zener` | `vz`, `zz` | `vf`, `ir`, `ct` |
 | `opamp` | `aol`, `gbw`, `sr`, `iq`, `vout_max`, `vout_min` | `pm`, `isc`, `vos` |
+| `opamp2`, `opamp4` | `iq_total` | |
+| `pot` | `rab`, `ratio` | `raw`, `rwb` |
 
 Include `pm` for any op-amp that isn't purely parametric, so that an unstable fit fails.
 
