@@ -131,6 +131,14 @@ python -m unittest discover tests
 
 **5. Add a row to the table in `README.md`,** with the target and measured values.
 
+**6. Update the version** in the `jellybean.lib` header:
+
+| Change | Version part to increase |
+|---|---|
+| Any change to model values | Patch |
+| New model in an existing category | Minor |
+| Anything larger | Major, at the maintainer's discretion |
+
 ### Required measures
 
 An entry must include at least these. Add more wherever the datasheet gives a number,
@@ -165,6 +173,7 @@ target itself was wrong.
       model was used.
 - [ ] The parameters represent a typical device.
 - [ ] The name ends in `_OJ`, and the model is in the right section of `jellybean.lib`.
+- [ ] The version in the `jellybean.lib` header is updated.
 - [ ] `tests/models.toml` has an entry with a real `source`.
 - [ ] `python tests/validate.py` and `python -m unittest discover tests` both pass.
 - [ ] The README table is updated, and any new limits are listed.
