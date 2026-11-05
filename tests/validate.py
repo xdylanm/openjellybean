@@ -25,6 +25,7 @@ DEFAULT_TOL = 0.10
 RESERVED = {"measure", "typ", "tol", "min", "max"}
 ENTRY_KEYS = {"kind", "stand_in_for", "source", "params", "defaults", "checks"}
 EXPECTED_MODEL_TYPE = {"npn": "npn", "pnp": "pnp", "nmos": "vdmos", "pmos": "vdmos",
+                       "njfet": "njf", "pjfet": "pjf",
                        "diode": "d", "schottky": "d", "zener": "d", "led": "d"}
 # Text that suggests vendor-derived content. `mfg=` is the tag vendor libraries carry.
 PROVENANCE_FLAGS = re.compile(

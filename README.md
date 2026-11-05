@@ -11,6 +11,7 @@ Names end in `_OJ` so they never collide with vendor models.
 .include jellybean.lib
 Q1  c b e  BC547B_OJ          ; BJT:      C B E  (SPICE order, not TO-92 pin order)
 M1  d g s  2N7000_OJ          ; VDMOS:    D G S  (body diode built in)
+J1  d g s  2N5457_OJ          ; JFET:     D G S  (SPICE order, not TO-92 pin order)
 D1  a k    1N4148_OJ          ; diode:    A K
 X1  a k    BZX79C5V1_OJ       ; zener:    A K
 X2  a k    ZENER_OJ params: VZ=8.2 IZT=5m RZ=10 NK=1   ; any voltage
@@ -46,6 +47,23 @@ XR1 a w b POT_OJ params: R=10k POS=0.25   ; pot: A WIPER B; POS 0 = at A, 1 = at
 | | | Ciss / Coss / Crss 20 / 11 / 4 pF @ 25 V | 19.5 / 10.4 / 3.5 pF |
 | `BS250_OJ` PMOS | BS250 | VGS(th) −1 to −3.5 V; RDS(on) 9 Ω @ −10 V | −2.4 V; 8.9 Ω |
 | | | Ciss / Coss / Crss 30 / 20 / 5 pF @ 10 V | 30.0 / 20.1 / 5.0 pF |
+| `2N5457_OJ` N-JFET | 2N5457, MMBF5457 | IDSS 3 mA; VGS −2.5 V @ 100 µA; gfs 1–5 mS; gos 10 µS | 3.02 mA; −2.51 V; 1.94 mS; 9.1 µS |
+| | | Ciss / Crss 4.5 / 1.5 pF @ 15 V | 4.4 / 1.55 pF |
+| `2N5458_OJ` N-JFET | 2N5458, MMBF5458 | IDSS 6 mA; VGS −3.5 V @ 200 µA; gfs 1.5–5.5 mS; gos 10 µS | 6.03 mA; −3.52 V; 2.74 mS; 9.4 µS |
+| | | Ciss / Crss 4.5 / 1.5 pF @ 15 V | 4.3 / 1.59 pF |
+| `2N5459_OJ` N-JFET | 2N5459, MMBF5459 | IDSS 9 mA; VGS −4.5 V @ 400 µA; gfs 2–6 mS; gos 10 µS | 8.98 mA; −4.53 V; 3.05 mS; 9.1 µS |
+| | | Ciss / Crss 4.5 / 1.5 pF @ 15 V | 4.15 / 1.56 pF |
+| `J112_OJ` N-JFET | J112, SST112 | VGS(off) −1 to −5 V; IDSS ≥ 5 mA (36 mA on the curves); rDS(on) ≤ 50 Ω | −2.19 V; 37 mA; 49 Ω |
+| | | gfs 6 mS, gos 25 µS @ 1 mA; Ciss / Crss 7 / 3 pF @ −10 V | 6.4 mS, 20 µS; 7.3 / 3.0 pF |
+| `J113_OJ` N-JFET | J113, SST113 | VGS(off) to −3 V; IDSS ≥ 2 mA (20 mA on the curves); rDS(on) ≤ 100 Ω (63 Ω on the curves) | −1.49 V; 20 mA; 65 Ω |
+| | | gfs 6 mS, gos 25 µS @ 1 mA; Ciss / Crss 7 / 3 pF @ −10 V | 6.9 mS, 19 µS; 7.3 / 3.0 pF |
+| `PN4392_OJ` N-JFET | PN4392, 2N4392 | VGS(off) −2 to −5 V; IDSS 25–75 mA; rDS(on) ≤ 60 Ω; VDS(on) 0.3 V @ 6 mA | −2.80 V; 50 mA; 49 Ω; 0.30 V |
+| | | gfs 6 mS, gos 25 µS @ 1 mA; Ciss 12 pF @ 20 V; Crss 3.4 pF @ −7 V | 5.4 mS, 20 µS; 12.0 pF; 3.4 pF |
+| `PN4393_OJ` N-JFET | PN4393, 2N4393 | VGS(off) −0.5 to −3 V; IDSS 5–30 mA; rDS(on) ≤ 100 Ω; VDS(on) 0.25 V @ 3 mA | −1.20 V; 14 mA; 78 Ω; 0.25 V |
+| | | gfs 6 mS, gos 25 µS @ 1 mA; Ciss 12 pF @ 20 V; Crss 3.5 pF @ −5 V | 6.6 mS, 19 µS; 11.6 pF; 3.5 pF |
+| `2N5460_OJ` P-JFET | 2N5460, MMBF5460 | IDSS 1–5 mA; VGS(off) 0.75–6 V; gfs 1–4 mS; Ciss / Crss 5 / 1 pF @ 15 V | 2.51 mA; 2.16 V; 2.18 mS; 4.8 / 0.99 pF |
+| `2N5461_OJ` P-JFET | 2N5461, MMBF5461 | IDSS 2–9 mA; VGS(off) 1–7.5 V; gfs 1.5–5 mS; Ciss / Crss 5 / 1 pF @ 15 V | 4.50 mA; 2.96 V; 2.86 mS; 4.75 / 0.98 pF |
+| `2N5462_OJ` P-JFET | 2N5462, MMBF5462 | IDSS 4–16 mA; VGS(off) 1.8–9 V; gfs 2–6 mS; Ciss / Crss 5 / 1 pF @ 15 V | 8.98 mA; 4.95 V; 3.46 mS; 4.75 / 1.01 pF |
 | `1N4148_OJ` | 1N4148, 1N914 | VF 0.61 / 0.72 / 0.875 V @ 1 / 10 / 100 mA | 0.611 / 0.729 / 0.920 V |
 | | | trr ≤ 8 ns (10 mA → 10 mA → 1 mA); ≤ 4 ns (10 mA, 6 V, 100 Ω) | 3.97 ns; 0.67 ns |
 | `1N5819_OJ` Schottky | 1N5819 | VF 0.30 / 0.42 / 0.55 V @ 0.1 / 1 / 3 A | 0.306 / 0.419 / 0.563 V |
@@ -85,6 +103,15 @@ wiper position with `POS`; its values are exact by construction.
   SPICE coefficients (not fitted).
 * MOSFETs use the VDMOS model (ngspice ≥ 47, LTspice). For PSpice you would need
   a subcircuit rewrite.
+* JFETs use the standard square-law model: no gate breakdown, no conduction tail below
+  cutoff, and gate leakage is set by the simulator (about 30 pA at 15 V, against 5 pA typ on
+  J112/J113). Noise is not fitted. Datasheets give wide or no typical IDSS and VGS(off) for
+  most of these parts, so each model is one point inside the limits, and real parts spread
+  far more: run corners by editing `VTO` and `BETA`.
+* `2N5457_OJ`-`2N5459_OJ` follow the datasheet's typical IDSS and VGS, which give about half
+  the gfs of its typical curves at 3 mA (1.9 mS, about 3.5 mS). J112, J113, PN4392 and PN4393
+  use `LAMBDA=0.035` to approach the published gos, so their drain current climbs more with
+  VDS than a real part at high current (J112: 30 mA at 5 V, 37 mA at 15 V).
 * Zeners: VZ temperature coefficient and noise not modelled; knee shape is
   approximate.
 * Op-amps: no input common-mode range limits or phase reversal, no noise,

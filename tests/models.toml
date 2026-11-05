@@ -91,6 +91,166 @@ checks = [
   { measure = "crss", vds = 10, typ = 5e-12 },
 ]
 
+# --------------------------------------------------------------- JFETs ------
+[2N5457_OJ]
+kind = "njfet"
+stand_in_for = ["2N5457", "MMBF5457"]
+source = "Fairchild 2N5457/5458/5459 datasheet: typical column, min/max where it gives no typical"
+checks = [
+  { measure = "idss", typ = 3e-3 },
+  { measure = "vgs", id = 100e-6, typ = 2.5 },
+  { measure = "vgsoff", id = 10e-9, min = 0.5, max = 6 },
+  { measure = "gfs", min = 1e-3, max = 5e-3 },
+  { measure = "gos", typ = 10e-6, tol = 0.2 },
+  { measure = "ciss", vds = 15, typ = 4.5e-12 },
+  { measure = "crss", vds = 15, typ = 1.5e-12 },
+  { measure = "igss", vrev = 15, max = 1e-9 },
+]
+
+[2N5458_OJ]
+kind = "njfet"
+stand_in_for = ["2N5458", "MMBF5458"]
+source = "Fairchild 2N5457/5458/5459 datasheet: typical column, min/max where it gives no typical"
+checks = [
+  { measure = "idss", typ = 6e-3 },
+  { measure = "vgs", id = 200e-6, typ = 3.5 },
+  { measure = "vgsoff", id = 10e-9, min = 1, max = 7 },
+  { measure = "gfs", min = 1.5e-3, max = 5.5e-3 },
+  { measure = "gos", typ = 10e-6, tol = 0.2 },
+  { measure = "ciss", vds = 15, typ = 4.5e-12 },
+  { measure = "crss", vds = 15, typ = 1.5e-12 },
+  { measure = "igss", vrev = 15, max = 1e-9 },
+]
+
+[2N5459_OJ]
+kind = "njfet"
+stand_in_for = ["2N5459", "MMBF5459"]
+source = "Fairchild 2N5457/5458/5459 datasheet: typical column, min/max where it gives no typical"
+checks = [
+  { measure = "idss", typ = 9e-3 },
+  { measure = "vgs", id = 400e-6, typ = 4.5 },
+  { measure = "vgsoff", id = 10e-9, min = 2, max = 8 },
+  { measure = "gfs", min = 2e-3, max = 6e-3 },
+  { measure = "gos", typ = 10e-6, tol = 0.2 },
+  { measure = "ciss", vds = 15, typ = 4.5e-12 },
+  { measure = "crss", vds = 15, typ = 1.5e-12 },
+  { measure = "igss", vrev = 15, max = 1e-9 },
+]
+
+[J112_OJ]
+kind = "njfet"
+stand_in_for = ["J112", "SST112"]
+source = "Vishay J/SST111 series datasheet 70232: limits, typical column, and typical curves at the chosen VGS(off)"
+checks = [
+  { measure = "idss", min = 5e-3 },
+  { measure = "idss", typ = 36e-3, tol = 0.15 },
+  { measure = "vgsoff", vds = 5, min = 1, max = 5 },
+  { measure = "rdson", vgs = 0, id = 2e-3, max = 50 },
+  { measure = "gfs", vds = 20, id = 1e-3, typ = 6e-3, tol = 0.3 },
+  { measure = "gos", vds = 20, id = 1e-3, typ = 25e-6, tol = 0.3 },
+  { measure = "vgsf", typ = 0.7, tol = 0.05 },
+  { measure = "ciss", vds = 0, vrev = 10, typ = 7e-12 },
+  { measure = "crss", vds = 0, vrev = 10, typ = 3e-12 },
+  { measure = "igss", vrev = 15, max = 1e-9 },
+]
+
+[J113_OJ]
+kind = "njfet"
+stand_in_for = ["J113", "SST113"]
+source = "Vishay J/SST111 series datasheet 70232: limits, typical column, and typical curves at the chosen VGS(off)"
+checks = [
+  { measure = "idss", min = 2e-3 },
+  { measure = "idss", typ = 20e-3, tol = 0.15 },
+  { measure = "vgsoff", vds = 5, max = 3 },
+  { measure = "rdson", vgs = 0, id = 1e-3, max = 100 },
+  { measure = "rdson", vgs = 0, id = 1e-3, typ = 63, tol = 0.1 },
+  { measure = "gfs", vds = 20, id = 1e-3, typ = 6e-3, tol = 0.3 },
+  { measure = "gos", vds = 20, id = 1e-3, typ = 25e-6, tol = 0.3 },
+  { measure = "vgsf", typ = 0.7, tol = 0.05 },
+  { measure = "ciss", vds = 0, vrev = 10, typ = 7e-12 },
+  { measure = "crss", vds = 0, vrev = 10, typ = 3e-12 },
+  { measure = "igss", vrev = 15, max = 1e-9 },
+]
+
+[PN4392_OJ]
+kind = "njfet"
+stand_in_for = ["PN4392", "2N4392"]
+source = "Vishay 2N/PN/SST4391 series datasheet 70241: limits, typical column, typical curves; IDSS limits also from Central PN4391-4393"
+checks = [
+  { measure = "idss", vds = 20, min = 25e-3, max = 75e-3 },
+  { measure = "vgsoff", vds = 20, id = 1e-9, min = 2, max = 5 },
+  { measure = "rdson", vgs = 0, id = 1e-3, max = 60 },
+  { measure = "rdson", vgs = 0, id = 6e-3, typ = 50, tol = 0.15 },
+  { measure = "gfs", vds = 20, id = 1e-3, typ = 6e-3, tol = 0.3 },
+  { measure = "gos", vds = 20, id = 1e-3, typ = 25e-6, tol = 0.3 },
+  { measure = "vgsf", typ = 0.7, tol = 0.05 },
+  { measure = "ciss", vds = 20, typ = 12e-12 },
+  { measure = "crss", vds = 0, vrev = 7, typ = 3.4e-12 },
+  { measure = "igss", vrev = 20, max = 1e-9 },
+]
+
+[PN4393_OJ]
+kind = "njfet"
+stand_in_for = ["PN4393", "2N4393"]
+source = "Vishay 2N/PN/SST4391 series datasheet 70241: limits, typical column, typical curves; IDSS limits also from Central PN4391-4393"
+checks = [
+  { measure = "idss", vds = 20, min = 5e-3, max = 30e-3 },
+  { measure = "vgsoff", vds = 20, id = 1e-9, min = 0.5, max = 3 },
+  { measure = "rdson", vgs = 0, id = 1e-3, max = 100 },
+  { measure = "rdson", vgs = 0, id = 3e-3, typ = 83, tol = 0.15 },
+  { measure = "gfs", vds = 20, id = 1e-3, typ = 6e-3, tol = 0.3 },
+  { measure = "gos", vds = 20, id = 1e-3, typ = 25e-6, tol = 0.3 },
+  { measure = "vgsf", typ = 0.7, tol = 0.05 },
+  { measure = "ciss", vds = 20, typ = 12e-12 },
+  { measure = "crss", vds = 0, vrev = 5, typ = 3.5e-12 },
+  { measure = "igss", vrev = 20, max = 1e-9 },
+]
+
+[2N5460_OJ]
+kind = "pjfet"
+stand_in_for = ["2N5460", "MMBF5460"]
+source = "Fairchild 2N5460/5461/5462 datasheet: limits (no typical IDSS or VGS(off)) and typical Ciss, Crss"
+checks = [
+  { measure = "idss", min = 1e-3, max = 5e-3 },
+  { measure = "vgs", id = 100e-6, min = 0.5, max = 4 },
+  { measure = "vgsoff", min = 0.75, max = 6 },
+  { measure = "gfs", min = 1e-3, max = 4e-3 },
+  { measure = "gos", max = 75e-6 },
+  { measure = "ciss", vds = 15, typ = 5e-12 },
+  { measure = "crss", vds = 15, typ = 1e-12 },
+  { measure = "igss", vrev = 20, max = 5e-9 },
+]
+
+[2N5461_OJ]
+kind = "pjfet"
+stand_in_for = ["2N5461", "MMBF5461"]
+source = "Fairchild 2N5460/5461/5462 datasheet: limits (no typical IDSS or VGS(off)) and typical Ciss, Crss"
+checks = [
+  { measure = "idss", min = 2e-3, max = 9e-3 },
+  { measure = "vgs", id = 200e-6, min = 0.8, max = 4.5 },
+  { measure = "vgsoff", min = 1, max = 7.5 },
+  { measure = "gfs", min = 1.5e-3, max = 5e-3 },
+  { measure = "gos", max = 75e-6 },
+  { measure = "ciss", vds = 15, typ = 5e-12 },
+  { measure = "crss", vds = 15, typ = 1e-12 },
+  { measure = "igss", vrev = 20, max = 5e-9 },
+]
+
+[2N5462_OJ]
+kind = "pjfet"
+stand_in_for = ["2N5462", "MMBF5462"]
+source = "Fairchild 2N5460/5461/5462 datasheet: limits (no typical IDSS or VGS(off)) and typical Ciss, Crss"
+checks = [
+  { measure = "idss", min = 4e-3, max = 16e-3 },
+  { measure = "vgs", id = 400e-6, min = 1.5, max = 6 },
+  { measure = "vgsoff", min = 1.8, max = 9 },
+  { measure = "gfs", min = 2e-3, max = 6e-3 },
+  { measure = "gos", max = 75e-6 },
+  { measure = "ciss", vds = 15, typ = 5e-12 },
+  { measure = "crss", vds = 15, typ = 1e-12 },
+  { measure = "igss", vrev = 20, max = 5e-9 },
+]
+
 # ------------------------------------------------------------- Diodes -------
 [1N4148_OJ]
 kind = "diode"

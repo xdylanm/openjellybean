@@ -230,6 +230,27 @@ class MutatedModels(unittest.TestCase):
         self.assert_fails(self.damaged("LED_BLUE_OJ D(IS=1.4e-10 N=6", "LED_BLUE_OJ D(IS=1.4e-7 N=6"),
                           "LED_BLUE_OJ", "vf")
 
+    def test_undamaged_jfets_pass(self):
+        """PN4392 has a nA cutoff above the leakage floor; both read capacitance with gm present."""
+        for model in ("PN4392_OJ", "2N5460_OJ"):
+            code, output = self.status(LIBRARY, model)
+            self.assertEqual(code, 0, output)
+
+    def test_wrong_jfet_cutoff(self):
+        self.assert_fails(self.damaged("NJF(VTO=-3.06", "NJF(VTO=-8"), "2N5457_OJ", "vgs")
+
+    def test_low_jfet_current(self):
+        self.assert_fails(self.damaged("BETA=6.6e-3", "BETA=6.6e-4"), "J112_OJ", "idss")
+
+    def test_wrong_jfet_capacitance(self):
+        self.assert_fails(self.damaged("CGS=12p CGD=9p", "CGS=12p CGD=30p"), "PN4392_OJ", "crss")
+
+    def test_jfet_with_the_wrong_polarity(self):
+        self.assert_fails(self.damaged("2N5460_OJ PJF(", "2N5460_OJ NJF("), "2N5460_OJ", "type pjf")
+
+    def test_jfet_that_does_not_turn_off(self):
+        self.assert_fails(self.damaged("NJF(VTO=-3.06", "NJF(VTO=-30"), "2N5457_OJ", "off with VGS")
+
     def test_opamp_with_broken_netlist_reports_a_failure(self):
         self.assert_fails(self.damaged("Rint int mid {AOL/GM}", "Rint int mid {NOPE}"), "TL07X_OJ", "could not")
 

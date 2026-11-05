@@ -16,11 +16,12 @@ from harness import crossing, interp_log
 
 BJT = ("npn", "pnp")
 MOSFET = ("nmos", "pmos")
+JFET = ("njfet", "pjfet")
 DIODE = ("diode", "schottky", "zener", "led")
 OPAMP = ("opamp",)
 PACKAGE = ("opamp2", "opamp4")
 POT = ("pot",)
-KINDS = BJT + MOSFET + DIODE + OPAMP + PACKAGE + POT
+KINDS = BJT + MOSFET + JFET + DIODE + OPAMP + PACKAGE + POT
 
 # Package pins in pin-number order. Benches wire by position, so a library .subckt
 # with its pins in the wrong order fails however it names them.
@@ -36,7 +37,7 @@ PIN_LABELS = {
     "pot": "A WIPER B",
 }
 
-_PREFIX = {"npn": "Q", "pnp": "Q", "nmos": "M", "pmos": "M",
+_PREFIX = {"npn": "Q", "pnp": "Q", "nmos": "M", "pmos": "M", "njfet": "J", "pjfet": "J",
            "diode": "D", "schottky": "D", "zener": "D", "led": "D", "opamp": "X"}
 TWO_PI = 2 * math.pi
 
@@ -49,7 +50,7 @@ class Bench:
         self.device = device
         self.kind = kind
         self.params = params
-        self.sign = -1 if kind in ("pnp", "pmos") else 1
+        self.sign = -1 if kind in ("pnp", "pmos", "pjfet") else 1
 
     def part(self, *nodes):
         """Instance line for the device under test, wired to nodes in SPICE pin order."""
@@ -187,7 +188,7 @@ def vth(b, *, id=1e-3, vds=5.0):
     return interp_log(id, ids, [abs(v) for v in vgs])
 
 
-@measure(MOSFET, "ohm", required=True)
+@measure(MOSFET + JFET, "ohm", required=MOSFET)
 def rdson(b, *, vgs, id):
     """On resistance at a given gate drive and drain current."""
     s = b.sign
@@ -195,23 +196,23 @@ def rdson(b, *, vgs, id):
     return v / id
 
 
-def _gate_ac(b, vds, f, source):
+def _gate_ac(b, vds, f, source, vrev=0.0):
     s = b.sign
-    _, i = b.sim.run(f"VD d 0 dc {s * vds} ac 0\nVG g 0 dc 0 ac 1\n{b.part('d', 'g', '0')}",
-                     f"ac lin 1 {f} {f}", [f"mag(i({source}))"])
+    _, i = b.sim.run(f"VD d 0 dc {s * vds} ac 0\nVG g 0 dc {-s * vrev} ac 1\n{b.part('d', 'g', '0')}",
+                     f"ac lin 1 {f} {f}", [f"abs(imag(i({source})))"])  # imag: a JFET's gm is real
     return i[0] / (TWO_PI * f)
 
 
-@measure(MOSFET, "F")
-def ciss(b, *, vds=25.0, f=1e6):
-    """Input capacitance at VGS = 0."""
-    return _gate_ac(b, vds, f, "VG")
+@measure(MOSFET + JFET, "F")
+def ciss(b, *, vds=25.0, f=1e6, vrev=0.0):
+    """Input capacitance, with the gate reverse biased by vrev (default VGS = 0)."""
+    return _gate_ac(b, vds, f, "VG", vrev)
 
 
-@measure(MOSFET, "F")
-def crss(b, *, vds=25.0, f=1e6):
-    """Reverse transfer capacitance at VGS = 0."""
-    return _gate_ac(b, vds, f, "VD")
+@measure(MOSFET + JFET, "F")
+def crss(b, *, vds=25.0, f=1e6, vrev=0.0):
+    """Reverse transfer capacitance, with the gate reverse biased by vrev (default VGS = 0)."""
+    return _gate_ac(b, vds, f, "VD", vrev)
 
 
 @measure(MOSFET, "F")
@@ -226,6 +227,70 @@ def coss(b, *, vds=25.0, f=1e6):
 def vsd(b, *, i):
     """Body diode forward voltage."""
     return b.sim.op(f"IS 0 s {b.sign * i}\nVG g 0 0\n{b.part('0', 'g', 's')}", "abs(v(s))")[0]
+
+
+# ----------------------------------------------------------------- JFETs ----
+@measure(JFET, "A", required=True)
+def idss(b, *, vds=15.0):
+    """Saturation drain current at VGS = 0."""
+    s = b.sign
+    return b.sim.op(f"VD d 0 {s * vds}\nVG g 0 0\n{b.part('d', 'g', '0')}", "abs(i(VD))")[0]
+
+
+def _gate_for(b, id, vds):
+    """Reverse |VGS| that gives a drain current, from a sweep up out of cutoff."""
+    s = b.sign
+    vgs, ids = b.sim.run(f"VD d 0 {s * vds}\nVG g 0 0\n{b.part('d', 'g', '0')}",
+                         f"dc VG {-s * 15} 0 {s * 2e-3}", ["abs(i(VD))"])
+    # Leakage falls as |VGS| falls, so start at its minimum, where the channel turns on.
+    start = ids.index(min(ids))
+    return interp_log(id, ids[start:], [abs(v) for v in vgs[start:]])
+
+
+@measure(JFET, "V", required=True)
+def vgsoff(b, *, id=1e-6, vds=15.0):
+    """Gate-source cutoff |VGS|, at the small drain current the datasheet calls off."""
+    return _gate_for(b, id, vds)
+
+
+@measure(JFET, "V")
+def vgs(b, *, id, vds=15.0):
+    """Reverse |VGS| at a given drain current."""
+    return _gate_for(b, id, vds)
+
+
+def _small_signal(b, vds, id, f, drive):
+    """AC current in VD with 1 V on the driven source; id = 0 means biased at VGS = 0."""
+    s = b.sign
+    gate = -s * _gate_for(b, id, vds) if id else 0
+    ac = {"VD": 1 if drive == "VD" else 0, "VG": 1 if drive == "VG" else 0}
+    _, i = b.sim.run(f"VD d 0 dc {s * vds} ac {ac['VD']}\nVG g 0 dc {gate} ac {ac['VG']}\n{b.part('d', 'g', '0')}",
+                     f"ac lin 1 {f} {f}", ["mag(i(VD))"])
+    return i[0]
+
+
+@measure(JFET, "S", required=True)
+def gfs(b, *, vds=15.0, id=0.0, f=1e3):
+    """Forward transconductance at a drain current (id = 0 means at VGS = 0)."""
+    return _small_signal(b, vds, id, f, "VG")
+
+
+@measure(JFET, "S")
+def gos(b, *, vds=15.0, id=0.0, f=1e3):
+    """Output conductance at a drain current (id = 0 means at VGS = 0)."""
+    return _small_signal(b, vds, id, f, "VD")
+
+
+@measure(JFET, "V")
+def vgsf(b, *, ig=1e-3):
+    """Gate forward voltage with drain and source grounded."""
+    return b.sim.op(f"IG 0 g {b.sign * ig}\n{b.part('0', 'g', '0')}", "abs(v(g))")[0]
+
+
+@measure(JFET, "A")
+def igss(b, *, vrev=15.0):
+    """Gate reverse current with drain and source grounded."""
+    return b.sim.op(f"VG g 0 {-b.sign * vrev}\n{b.part('0', 'g', '0')}", "abs(i(VG))")[0]
 
 
 # ---------------------------------------------------------------- Diodes ----
@@ -458,6 +523,22 @@ def _behaviour_mosfet(b, **_):
     ]
 
 
+def _behaviour_jfet(b, **_):
+    s = b.sign
+    def drain(vgs_drive):
+        return b.sim.op(f"VD d 0 {s * 5}\nVG g 0 {vgs_drive}\n{b.part('d', 'g', '0')}", "i(VD)")[0]
+    # Drain current must flow into an N-channel drain, i.e. out of the VD source's + pin.
+    on, off = drain(0), abs(drain(-s * 15))
+    gate = b.sim.op(f"VG g 0 {s * 1}\n{b.part('0', 'g', '0')}", "abs(i(VG))")[0]
+    leak = igss(b, vrev=15)
+    return [
+        ("conducts at VGS = 0 (polarity)", abs(on) > 100e-6 and on * s < 0, f"ID={eng(abs(on), 'A')}"),
+        ("off with VGS = 15 V reverse", off < 1e-6, f"ID={eng(off, 'A')}"),
+        ("gate conducts when forward biased", gate > 1e-3, f"IG={eng(gate, 'A')} at 1 V"),
+        ("gate blocks when reverse biased", leak < 1e-6, f"IG={eng(leak, 'A')} at 15 V"),
+    ]
+
+
 def _behaviour_diode(b, **_):
     forward = b.sim.op(f"I1 0 a 10m\n{b.part('a', '0')}", "v(a)")[0]
     reverse = b.sim.op(f"V1 k 0 1\n{b.part('0', 'k')}", "abs(i(V1))")[0]
@@ -547,6 +628,7 @@ def _behaviour_pot(b, **_):
 
 BEHAVIOUR = {"npn": _behaviour_bjt, "pnp": _behaviour_bjt,
              "nmos": _behaviour_mosfet, "pmos": _behaviour_mosfet,
+             "njfet": _behaviour_jfet, "pjfet": _behaviour_jfet,
              "diode": _behaviour_diode, "schottky": _behaviour_diode, "zener": _behaviour_diode,
              "opamp": _behaviour_opamp,
              "led": _behaviour_led, "opamp2": _behaviour_package, "opamp4": _behaviour_package, "pot": _behaviour_pot}

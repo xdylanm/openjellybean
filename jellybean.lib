@@ -1,6 +1,6 @@
 * =============================================================================
 * openjellybean - generic "jelly bean" SPICE models
-* Version 0.4.0
+* Version 0.5.0
 * https://github.com/xdylanm/openjellybean
 * SPDX-License-Identifier: MIT
 * Copyright (c) 2026 openjellybean contributors. See LICENSE for the full text.
@@ -59,6 +59,36 @@
 .model BS250_OJ VDMOS(pchan VTO=-2.1 KP=0.02 LAMBDA=0.01 RD=1.8 RS=0.2 RG=10
 + CGS=25p CGDMAX=21p CGDMIN=3.7p A=0.5
 + CJO=57p VJ=0.75 M=0.5 IS=1e-13 N=1.1 RB=0.5 BV=45 IBV=10u TT=30n)
+
+* -------------------------------------------------------------- JFETs -------
+* Pins D G S. VTO is negative for both polarities, as SPICE defines it.
+* 2N5457_OJ .. 2N5459_OJ : N-channel general-purpose amplifiers, 25 V
+.model 2N5457_OJ NJF(VTO=-3.06 BETA=3.2e-4 LAMBDA=3.3e-3 RD=20 RS=20
++ CGS=3.2p CGD=5.5p PB=1 IS=1e-14 FC=0.5)
+.model 2N5458_OJ NJF(VTO=-4.28 BETA=3.4e-4 LAMBDA=1.7e-3 RD=20 RS=20
++ CGS=3.2p CGD=5.4p PB=1 IS=1e-14 FC=0.5)
+.model 2N5459_OJ NJF(VTO=-5.7 BETA=2.9e-4 LAMBDA=1.1e-3 RD=20 RS=20
++ CGS=3.2p CGD=5.2p PB=1 IS=1e-14 FC=0.5)
+
+* J112_OJ, J113_OJ : N-channel analog switches, 35 V
+.model J112_OJ NJF(VTO=-2.2 BETA=6.6e-3 LAMBDA=0.035 RD=7 RS=7
++ CGS=13p CGD=9p PB=1.25 IS=1e-15 FC=0.5)
+.model J113_OJ NJF(VTO=-1.5 BETA=8.3e-3 LAMBDA=0.035 RD=12 RS=12
++ CGS=13p CGD=9p PB=1.25 IS=1e-15 FC=0.5)
+
+* PN4392_OJ, PN4393_OJ : N-channel switches, 40 V
+.model PN4392_OJ NJF(VTO=-2.8 BETA=4.4e-3 LAMBDA=0.035 RD=4 RS=4
++ CGS=12p CGD=9p PB=1.17 IS=1e-15 FC=0.5)
+.model PN4393_OJ NJF(VTO=-1.2 BETA=7.4e-3 LAMBDA=0.035 RD=10 RS=10
++ CGS=12.5p CGD=8p PB=1.17 IS=1e-15 FC=0.5)
+
+* 2N5460_OJ .. 2N5462_OJ : P-channel general-purpose amplifiers, 40 V
+.model 2N5460_OJ PJF(VTO=-2.2 BETA=5.3e-4 LAMBDA=5e-3 RD=40 RS=40
++ CGS=4.8p CGD=2.3p PB=1 IS=1e-14 FC=0.5)
+.model 2N5461_OJ PJF(VTO=-3 BETA=5.1e-4 LAMBDA=5e-3 RD=30 RS=30
++ CGS=4.8p CGD=2.3p PB=1 IS=1e-14 FC=0.5)
+.model 2N5462_OJ PJF(VTO=-5 BETA=3.7e-4 LAMBDA=3e-3 RD=20 RS=20
++ CGS=4.7p CGD=2.7p PB=1 IS=1e-14 FC=0.5)
 
 * ------------------------------------------------------------- Diodes -------
 * 1N4148_OJ : small-signal fast switching (also 1N914)

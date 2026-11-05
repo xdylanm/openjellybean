@@ -49,6 +49,7 @@ logos or names in a way that suggests a model is official.
   |---|---|---|
   | BJT | `.model NAME NPN(...)` or `PNP(...)` | C B E |
   | MOSFET | `.model NAME VDMOS(...)`, adding `pchan` for P-channel | D G S |
+  | JFET | `.model NAME NJF(...)` or `PJF(...)`, with negative `VTO` for both | D G S |
   | Diode, Schottky, LED | `.model NAME D(...)` | A K |
   | Zener | `.subckt` wrapping `ZENER_OJ`, or `.model NAME D(... BV=...)` | A K |
   | Op-amp | `.subckt` wrapping `OPAMP_OJ`; one amplifier section | +IN -IN V+ V- OUT |
@@ -74,7 +75,7 @@ against:
 
 ```toml
 [BC337_OJ]
-kind = "npn"                  # npn pnp nmos pmos diode schottky zener led opamp opamp2 opamp4 pot
+kind = "npn"                  # npn pnp nmos pmos njfet pjfet diode schottky zener led opamp opamp2 opamp4 pot
 stand_in_for = ["BC337-25"]   # the real parts
 source = "BC337 datasheet, typical column"
 checks = [
@@ -148,6 +149,7 @@ because each one is another way to catch a bad fit.
 |---|---|---|
 | `npn`, `pnp` | `hfe`, `vcesat`, `ft` | `vbe`, `vbesat`, `hoe`, `cobo`, `cibo` |
 | `nmos`, `pmos` | `vth`, `rdson` | `ciss`, `coss`, `crss`, `vsd` |
+| `njfet`, `pjfet` | `idss`, `vgsoff`, `gfs` | `vgs`, `gos`, `rdson`, `ciss`, `crss`, `vgsf`, `igss` |
 | `diode`, `schottky` | `vf` | `ir`, `ct`, `trr` |
 | `led` | `vf` | `ir`, `ct` |
 | `zener` | `vz`, `zz` | `vf`, `ir`, `ct` |
@@ -191,7 +193,7 @@ target itself was wrong.
 
 To add a measure, write a function in `measures.py` with the `@measure` decorator. Its
 keyword arguments become the conditions available in `models.toml`, and `--measures`
-lists it automatically. Other device types, such as JFETs or comparators, need a new
+lists it automatically. Other device types, such as comparators, need a new
 kind and their own benches. Open an issue first to discuss those.
 
 The framework must stay standard-library only.
