@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  NGSPICE_VERSION: "47"
+
+jobs:
+  models:
+    name: Validate models (ngspice 47)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      # Ubuntu's packaged ngspice is older than the 47 the models need
+      # (VDMOS), so build the release from source and cache the install.
+      - name: Cache ngspice
+        id: ngspice-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/ngspice
+          key: ngspice-${{ env.NGSPICE_VERSION }}-${{ runner.os }}
+
+      - name: Build ngspice
+        if: steps.ngspice-cache.outputs.cache-hit != 'true'
+        run: |
+          curl -fsSL -o ngspice.tar.gz \
+            "https://sourceforge.net/projects/ngspice/files/ng-spice-rework/${NGSPICE_VERSION}/ngspice-${NGSPICE_VERSION}.tar.gz/download"
+          tar xzf ngspice.tar.gz
+          cd "ngspice-${NGSPICE_VERSION}"
+          ./configure --prefix="$HOME/ngspice" --disable-debug --with-x=no --without-readline
+          make -j"$(nproc)"
+          make install
+
+      - name: Put ngspice on PATH
+        run: |
+          echo "$HOME/ngspice/bin" >> "$GITHUB_PATH"
+          echo "NGSPICE=$HOME/ngspice/bin/ngspice" >> "$GITHUB_ENV"
+
+      - name: Show versions
+        run: |
+          python --version
+          ngspice -v | head -n 3
+
+      - name: Validate every model
+        run: python tests/validate.py
+
+      - name: Framework tests (includes the mixed-circuit smoke test)
+        run: python -m unittest discover tests
+
+  package:
+    name: Build and check package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install build
+          python -m build
+
+      - name: Install the wheel and check library_path()
+        run: |
+          python -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install dist/*.whl
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/venv/bin/python" - <<'PY'
+          import re
+          from pathlib import Path
+          import openjellybean as oj
+
+          p = oj.library_path()
+          assert p.is_file(), p
+          m = re.search(r"^\* Version (\S+)", p.read_text(), re.M)
+          assert m and m.group(1) == oj.__version__, (m and m.group(1), oj.__version__)
+          print("ok", p, oj.__version__)
+          PY
+
+      - name: Wheel library matches the root file
+        run: |
+          python - <<'PY'
+          import glob, zipfile
+          from pathlib import Path
+          z = zipfile.ZipFile(glob.glob("dist/*.whl")[0])
+          assert z.read("openjellybean/jellybean.lib") == Path("jellybean.lib").read_bytes()
+          PY
