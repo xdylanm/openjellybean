@@ -94,6 +94,20 @@ The targets and tolerances live in [`tests/models.toml`](tests/models.toml). See
 `POT_OJ` is a generic linear potentiometer. Set the total resistance with `R` and the
 wiper position with `POS`; its values are exact by construction.
 
+## Use as a Python dependency
+
+```toml
+dependencies = ["openjellybean @ git+https://github.com/xdylanm/openjellybean@v0.5.0"]
+```
+
+```python
+from openjellybean import library_path
+print(library_path())  # path to the bundled jellybean.lib
+```
+
+The package version is read from the `* Version X.Y.Z` line in the header of
+`jellybean.lib`, so bumping that line (and tagging `vX.Y.Z`) is the whole release.
+
 ## Limits — read before trusting a result
 
 * These are *typical* devices. Real parts spread widely (BC547 hFE spans
