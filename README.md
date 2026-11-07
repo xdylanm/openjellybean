@@ -96,8 +96,14 @@ wiper position with `POS`; its values are exact by construction.
 
 ## Use as a Python dependency
 
+```bash
+pip install openjellybean
+```
+
+or, in your project's `pyproject.toml`:
+
 ```toml
-dependencies = ["openjellybean @ git+https://github.com/xdylanm/openjellybean@v0.5.0"]
+dependencies = ["openjellybean>=0.6"]
 ```
 
 ```python
@@ -105,8 +111,13 @@ from openjellybean import library_path
 print(library_path())  # path to the bundled jellybean.lib
 ```
 
+The path is a real file, so it can go straight into a netlist, for example
+`.include /path/to/jellybean.lib`. To pin to an unreleased commit instead, install from
+git: `pip install "git+https://github.com/xdylanm/openjellybean@<tag-or-commit>"`.
+
 The package version is read from the `* Version X.Y.Z` line in the header of
-`jellybean.lib`, so bumping that line (and tagging `vX.Y.Z`) is the whole release.
+`jellybean.lib`. Releasing means bumping that line, tagging `vX.Y.Z`, and publishing a
+GitHub release, which uploads to [PyPI](https://pypi.org/project/openjellybean/).
 
 ## Limits — read before trusting a result
 
