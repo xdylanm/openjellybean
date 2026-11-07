@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
+    tags: ["v*"]
   pull_request:
 
 permissions:
@@ -98,3 +99,20 @@ jobs:
           z = zipfile.ZipFile(glob.glob("dist/*.whl")[0])
           assert z.read("openjellybean/jellybean.lib") == Path("jellybean.lib").read_bytes()
           PY
+
+  tag-version:
+    name: Tag matches library version
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare tag with the jellybean.lib header
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          lib="$(sed -n 's/^\* Version \([^[:space:]]*\).*/\1/p' jellybean.lib | head -n 1)"
+          echo "tag=$tag header=$lib"
+          if [ "$tag" != "$lib" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match '* Version $lib' in jellybean.lib"
+            exit 1
+          fi
