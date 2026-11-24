@@ -10,11 +10,11 @@ openjellybean's models, test framework, tools and Python code are MIT-licensed, 
 stay that way. By submitting a contribution, you agree to license it under the
 [MIT license](LICENSE) and confirm you have the right to do so.
 
-The one exception is `kicad/symbols`: those files are generated from KiCad's symbols and are
-licensed [CC-BY-SA 4.0 with the KiCad libraries exception](kicad/LICENSE.md). Don't edit
-them by hand and don't put MIT-only material in them. Change `tools/gen_symbols.py` and
-regenerate, and your changes to the generator stay MIT. Contributions to the symbol
-files are accepted under their license.
+The one exception is the `OpenJellybean_*.kicad_sym` files in `kicad/symbols`. They are
+generated from KiCad's symbols, so they are licensed
+[CC-BY-SA 4.0 with the KiCad libraries exception](kicad/LICENSE.md). Don't edit them by
+hand: change the models or `tools/gen_symbols.py` and regenerate. The generator is MIT, and
+its output is CC-BY-SA-4.0 WITH KiCad-libraries-exception.
 
 **Don't use:**
 
@@ -139,7 +139,9 @@ python -m unittest discover tests
 **5. Add a row to the table in `README.md`,** with the target and measured values.
 
 **6. Regenerate the KiCad symbols,** which needs KiCad 9's stock symbol libraries
-(see [`kicad/README.md`](kicad/README.md)), and commit the result:
+(see [`kicad/README.md`](kicad/README.md) for where the generator looks for them; the
+committed files come from kicad-symbols 9.0.9, which CI checks them against), and commit
+the result:
 
 ```bash
 python tools/gen_symbols.py

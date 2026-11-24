@@ -62,11 +62,17 @@ class SymbolLibraries(unittest.TestCase):
                 self.assertEqual(props["Sim.Device"], expected)
 
     def test_sim_pins_cover_every_symbol_pin_and_follow_the_model_pins(self):
+        # a symbol pin's name says what it is, so the model pin it maps to must say the same
+        meaning = {"+": "inp", "-": "inn", "~": "out", "V+": "vcc", "V-": "vee"}
         for name, (_, symbol) in ALL.items():
             with self.subTest(name):
                 mapping = dict(pair.split("=") for pair in fields(symbol)["Sim.Pins"].split())
-                symbol_pins = {number for number, _ in gen.pins_of(symbol)}
-                self.assertEqual(set(mapping), symbol_pins)
+                symbol_pins = gen.pins_of(symbol)
+                self.assertEqual(set(mapping), {number for number, _ in symbol_pins})
+                for number, pin_name in symbol_pins:
+                    wanted = meaning.get(pin_name, pin_name.lower())
+                    self.assertTrue(mapping[number].lower().startswith(wanted),
+                                    f"symbol pin {number} ({pin_name}) maps to {mapping[number]}")
                 device, kind = DEVICES[name], EXPECTED[name]["kind"]
                 if device.statement == "subckt":
                     # every subcircuit pin is wired to exactly one symbol pin
@@ -108,6 +114,27 @@ class Generator(unittest.TestCase):
         for lib, text in gen.generate(stock).items():
             path = SYMBOL_DIR / f"{lib}.kicad_sym"
             self.assertEqual(path.read_text(encoding="utf-8"), text, f"{path.name} is stale: run tools/gen_symbols.py")
+
+    def test_refuses_stock_libraries_from_another_kicad_release(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as folder:
+            (Path(folder) / "Device.kicad_sym").write_text(
+                '(kicad_symbol_lib (version 20231120) (generator "kicad_symbol_editor") (generator_version "8.0"))')
+            with self.assertRaises(SystemExit):
+                gen.Stock(folder).header()
+
+    def test_check_flags_extra_library_files(self):
+        import contextlib, io, tempfile
+        try:
+            stock_dir = gen.find_stock_dir(None)
+        except SystemExit:
+            self.skipTest("KiCad stock symbols not installed")
+        with tempfile.TemporaryDirectory() as folder:
+            (Path(folder) / "Obsolete.kicad_sym").write_text("")
+            with contextlib.redirect_stdout(io.StringIO()) as out:
+                status = gen.main(["--kicad-symbols", str(stock_dir), "--out", folder, "--check"])
+            self.assertEqual(status, 1)
+            self.assertIn("Obsolete.kicad_sym", out.getvalue())
 
     def test_sexpression_round_trip(self):
         text = '(a "b c" (d 1 2) (e (f "g\\"h")))'

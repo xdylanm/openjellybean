@@ -1,10 +1,11 @@
-# openjellybean — MIT-licensed jelly-bean SPICE models, with KiCad symbols
+# openjellybean — MIT-licensed jelly-bean SPICE models
 
 One include file, `jellybean.lib`, with original models that behave like the
 everyday parts. Every model was written from scratch and its parameters fitted
 in ngspice to **typical** values from public datasheets — no manufacturer model
-file was copied or adapted — so the whole set is under the MIT license. Matching KiCad schematic symbols
-live in [`kicad/`](kicad) and carry a different license; see [License](#license).
+file was copied or adapted — so all the models are under the MIT license.
+Matching KiCad schematic symbols live in [`kicad/`](kicad); they are derived from
+KiCad's symbols and carry a different license, described in [License](#license).
 
 Names end in `_OJ` so they never collide with vendor models.
 

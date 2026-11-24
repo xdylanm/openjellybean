@@ -1,14 +1,17 @@
 ### openjellybean KiCad symbol libraries: license
 
-The symbol libraries in [`symbols/`](symbols) (`OpenJellybean_*.kicad_sym`) are
-modified copies of symbols from the KiCad symbol libraries
-(<https://gitlab.com/kicad/libraries/kicad-symbols>), which are copyright the KiCad
-Library Team and contributors. They are therefore licensed as the KiCad libraries are:
+The symbol library files `OpenJellybean_*.kicad_sym` (in `kicad/symbols` in the source
+tree, and in the `symbols` folder of the installed package) are modified copies of
+symbols from the KiCad symbol libraries
+(<https://gitlab.com/kicad/libraries/kicad-symbols>, release 9.0.9), which are copyright
+the KiCad Library Team and contributors. They are therefore licensed as the KiCad
+libraries are:
 
 SPDX-License-Identifier: `CC-BY-SA-4.0 WITH KiCad-libraries-exception`
 
 The [Creative Commons CC-BY-SA 4.0 License](https://creativecommons.org/licenses/by-sa/4.0/legalcode)
-(a copy is in [`LICENSES/CC-BY-SA-4.0.txt`](../LICENSES/CC-BY-SA-4.0.txt)), with the following exception:
+(a copy is in `LICENSES/CC-BY-SA-4.0.txt` in the source distribution), with the
+following exception:
 
 ---------
 
@@ -32,14 +35,17 @@ under the same license, and must keep this file and the attribution it contains.
 
 Each symbol's graphics and pins are copied from a stock KiCad symbol (`Device`,
 `Transistor_BJT`, `Transistor_FET`, `Simulation_SPICE` and `Amplifier_Operational`),
-renamed, and given the `Sim.*` fields that connect it to `jellybean.lib`. The footprint
-and footprint-filter fields are removed. `tools/gen_symbols.py` makes the changes.
+renamed, and given the `Sim.*` fields that connect it to `jellybean.lib`. The Description
+and keywords are replaced, the Datasheet field is cleared, the footprint field is emptied,
+and the stock symbol's other properties (such as footprint filters) are dropped.
+`tools/gen_symbols.py` makes the changes.
 
 **Scope**
 
-This license covers only the files in this directory. The SPICE models, `jellybean.lib`,
-the test framework, the generator and the Python package code are under the
-[MIT license](../LICENSE).
+This license covers only the `OpenJellybean_*.kicad_sym` symbol library files. Everything
+else in openjellybean, including the rest of the `kicad` folder (this file and its README),
+the SPICE models in `jellybean.lib`, the test framework, the generator and the Python
+package code, is under the MIT license (the `LICENSE` file in the source tree).
 
 **Warranty**
 

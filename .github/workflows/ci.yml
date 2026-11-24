@@ -11,6 +11,7 @@ permissions:
 
 env:
   NGSPICE_VERSION: "47"
+  KICAD_SYMBOLS_VERSION: "9.0.9"
 
 jobs:
   models:
@@ -58,6 +59,35 @@ jobs:
 
       - name: Framework tests (includes the mixed-circuit smoke test)
         run: python -m unittest discover tests
+
+  symbols:
+    name: KiCad symbols are up to date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      # The committed symbols come from this kicad-symbols release. Ubuntu's own
+      # kicad-symbols package is an older KiCad, so fetch just the five libraries
+      # the generator copies from.
+      - name: Fetch stock KiCad symbols
+        run: |
+          git clone --depth 1 --branch "$KICAD_SYMBOLS_VERSION" --filter=blob:none --sparse \
+            https://gitlab.com/kicad/libraries/kicad-symbols.git "$RUNNER_TEMP/kicad-symbols"
+          git -C "$RUNNER_TEMP/kicad-symbols" sparse-checkout set --no-cone \
+            /Device.kicad_sym /Transistor_BJT.kicad_sym /Transistor_FET.kicad_sym \
+            /Simulation_SPICE.kicad_sym /Amplifier_Operational.kicad_sym
+
+      - name: Regenerate and compare
+        run: python tools/gen_symbols.py --kicad-symbols "$RUNNER_TEMP/kicad-symbols" --check
+
+      - name: Symbol tests (with the stock libraries available)
+        run: |
+          export KICAD_SYMBOL_DIR="$RUNNER_TEMP/kicad-symbols"
+          python -m unittest discover tests -p "test_symbols.py" -v
 
   package:
     name: Build and check package
