@@ -103,7 +103,7 @@ potentiometer, in four libraries: `OpenJellybean_BJT`, `OpenJellybean_FET`,
 `OpenJellybean_Diode` and `OpenJellybean_Amplifier`. Each one carries the simulation fields
 that tie it to its `_OJ` model, and there are no footprints or 3D models. Add the libraries
 to KiCad and set the path variable `OPENJELLYBEAN_DIR` to the folder holding
-`jellybean.lib` (an absolute path; `~` doesn't work); [`kicad/README.md`](kicad/README.md) has the steps.
+`jellybean.lib` (an absolute path); [`kicad/README.md`](kicad/README.md) has the steps.
 
 ## Use as a Python dependency
 
