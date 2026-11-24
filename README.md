@@ -1,9 +1,10 @@
-# openjellybean — MIT-licensed jelly-bean SPICE models
+# openjellybean — MIT-licensed jelly-bean SPICE models, with KiCad symbols
 
 One include file, `jellybean.lib`, with original models that behave like the
 everyday parts. Every model was written from scratch and its parameters fitted
 in ngspice to **typical** values from public datasheets — no manufacturer model
-file was copied or adapted — so the whole set is under the MIT license.
+file was copied or adapted — so the whole set is under the MIT license. Matching KiCad schematic symbols
+live in [`kicad/`](kicad) and carry a different license; see [License](#license).
 
 Names end in `_OJ` so they never collide with vendor models.
 
@@ -94,6 +95,15 @@ The targets and tolerances live in [`tests/models.toml`](tests/models.toml). See
 `POT_OJ` is a generic linear potentiometer. Set the total resistance with `R` and the
 wiper position with `POS`; its values are exact by construction.
 
+## KiCad symbols
+
+[`kicad/symbols`](kicad/symbols) has a symbol for every model above except the
+potentiometer, in four libraries: `OpenJellybean_BJT`, `OpenJellybean_FET`,
+`OpenJellybean_Diode` and `OpenJellybean_Amplifier`. Each one carries the simulation fields
+that tie it to its `_OJ` model, and there are no footprints or 3D models. Add the libraries
+to KiCad and set the path variable `OPENJELLYBEAN_DIR` to the folder holding
+`jellybean.lib`; [`kicad/README.md`](kicad/README.md) has the steps.
+
 ## Use as a Python dependency
 
 ```bash
@@ -103,13 +113,16 @@ pip install openjellybean
 or, in your project's `pyproject.toml`:
 
 ```toml
-dependencies = ["openjellybean>=0.6"]
+dependencies = ["openjellybean>=0.7"]
 ```
 
 ```python
-from openjellybean import library_path
+from openjellybean import library_path, symbols_path
 print(library_path())  # path to the bundled jellybean.lib
+print(symbols_path())  # folder of the KiCad symbol libraries
 ```
+
+`python -m openjellybean` prints both paths.
 
 The path is a real file, so it can go straight into a netlist, for example
 `.include /path/to/jellybean.lib`. To pin to an unreleased commit instead, install from
@@ -118,6 +131,17 @@ git: `pip install "git+https://github.com/xdylanm/openjellybean@<tag-or-commit>"
 The package version is read from the `* Version X.Y.Z` line in the header of
 `jellybean.lib`. Releasing means bumping that line, tagging `vX.Y.Z`, and publishing a
 GitHub release, which uploads to [PyPI](https://pypi.org/project/openjellybean/).
+
+## License
+
+The SPICE models, `jellybean.lib`, the test framework, the generator and the Python code
+are under the [MIT license](LICENSE).
+
+The KiCad symbols in `kicad/symbols` are modified copies of KiCad's own symbols, so they
+are under **CC-BY-SA 4.0 with the KiCad libraries exception**, the license of the KiCad
+libraries; see [`kicad/LICENSE.md`](kicad/LICENSE.md). Using the symbols in a design puts no
+license requirement on that design. Redistributing the symbol libraries, modified or not,
+requires the same license.
 
 ## Limits — read before trusting a result
 
