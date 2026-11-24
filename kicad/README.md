@@ -2,8 +2,8 @@
 
 Schematic symbols for every model in `jellybean.lib` except the potentiometer (KiCad's
 own potentiometer symbol covers that). Each symbol carries the `Sim.*` fields that
-tie it to its `_OJ` model, so it simulates in KiCad 8 and later with no further setup.
-There are no footprints or 3D models.
+tie it to its `_OJ` model, so it simulates in KiCad 9 or later once `OPENJELLYBEAN_DIR`
+is set (see [Install](#install)). There are no footprints or 3D models.
 
 | Library | Symbols |
 |---|---|
@@ -13,25 +13,34 @@ There are no footprints or 3D models.
 | `OpenJellybean_Amplifier` | `OPAMP_OJ`, `TL07X_OJ`, `LM358_OJ`, and the complete `TL072`, `TL074`, `LM358_DUAL`, `LM324_QUAD` packages |
 
 Package op-amps are multi-unit symbols whose pin numbers are the real package pins.
-Everything else numbers its pins in SPICE order (BJT `C B E`, FET `D G S`, diode `K A`
-as in KiCad's stock symbols), and the `Sim.Pins` field does the mapping.
+Everything else keeps the pin numbering of KiCad's stock symbols (BJT 1=C 2=B 3=E,
+FET 1=D 2=G 3=S, diode 1=K 2=A), and the `Sim.Pins` field maps those to the model's
+nodes, so the SPICE node order is always right.
+
+The files are in KiCad 9 format, generated from the stock libraries of KiCad release
+**9.0.9**.
 
 ## Install
 
-1. Install the package, or clone the repository, and find the folder that holds
-   `jellybean.lib`:
+Two things are needed: the four symbol libraries, and a KiCad path variable that tells
+the simulator where `jellybean.lib` is (the symbols' `Sim.Library` field is
+`${OPENJELLYBEAN_DIR}/jellybean.lib`).
 
-   ```bash
-   pip install openjellybean
-   python -m openjellybean
-   ```
+1. Find the two locations.
+
+   *Installed from PyPI* (`pip install openjellybean`): run `python -m openjellybean`,
+   which prints the folder to use for `OPENJELLYBEAN_DIR` and the folder holding the
+   symbol libraries.
+
+   *Cloned from git*: `OPENJELLYBEAN_DIR` is the repository root (where `jellybean.lib`
+   is), and the symbol libraries are in `kicad/symbols`. (`pip install -e .` also works
+   and `python -m openjellybean` then prints these paths.)
 
 2. In KiCad, open **Preferences > Configure Paths** and add the variable
-   `OPENJELLYBEAN_DIR`, set to the folder that holds `jellybean.lib` (the symbols'
-   `Sim.Library` field is `${OPENJELLYBEAN_DIR}/jellybean.lib`).
+   `OPENJELLYBEAN_DIR`, set to that folder.
 
-3. Open **Preferences > Manage Symbol Libraries** and add the four `OpenJellybean_*.kicad_sym`
-   files, from the `symbols` folder that `python -m openjellybean` prints.
+3. Open **Preferences > Manage Symbol Libraries** and add the four
+   `OpenJellybean_*.kicad_sym` files.
 
 ## Regenerating
 
@@ -42,13 +51,27 @@ The libraries are generated, not drawn by hand. After you add or change a model 
 python tools/gen_symbols.py
 ```
 
-It reads the stock KiCad symbols from your KiCad install (set `KICAD_SYMBOL_DIR` or pass
-`--kicad-symbols` if it isn't in the usual place), so commit the output of the
-KiCad 9 libraries. `python tools/gen_symbols.py --check` reports stale files. To add a
-device kind, map it to a stock symbol in `BASE` and to a library in `LIBRARY_OF_KIND`.
+It copies graphics from the stock KiCad 9 symbols, so it needs a KiCad 9 install or a
+checkout of [kicad-symbols](https://gitlab.com/kicad/libraries/kicad-symbols). It looks
+for them, in order, at:
+
+1. the `--kicad-symbols DIR` option,
+2. the `KICAD_SYMBOL_DIR` or `KICAD9_SYMBOL_DIR` environment variable,
+3. the usual install locations on Linux (including Flatpak), macOS and Windows.
+
+If KiCad is somewhere else, point the option or variable at the folder that contains
+`Device.kicad_sym`. It refuses stock libraries that are not KiCad 9.
+
+`python tools/gen_symbols.py --check` reports stale, missing or extra files. The committed
+files come from kicad-symbols **9.0.9**, and CI checks them against that tag. Stock
+symbols from another 9.0.x release can differ slightly, so if `--check` reports changes
+you did not make, compare against a 9.0.9 checkout before committing regenerated files.
+
+To add a device kind, map it to a stock symbol in `BASE` and to a library in
+`LIBRARY_OF_KIND`.
 
 ## License
 
-The symbols are copies of KiCad symbols, so they are licensed
-**CC-BY-SA 4.0 with the KiCad libraries exception**, unlike the MIT-licensed models.
-See [LICENSE.md](LICENSE.md).
+The symbols are copies of KiCad symbols, so the `OpenJellybean_*.kicad_sym` files are
+licensed **CC-BY-SA 4.0 with the KiCad libraries exception**, unlike the MIT-licensed
+models. See [LICENSE.md](LICENSE.md).

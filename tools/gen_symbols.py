@@ -10,12 +10,13 @@ exception; see kicad/LICENSE.md). The ``Sim.*`` fields point KiCad's simulator a
 ``jellybean.lib`` and map symbol pins to the model's pins.
 
     python tools/gen_symbols.py                    # write kicad/symbols/*.kicad_sym
-    python tools/gen_symbols.py --check            # fail if the committed files are stale
+    python tools/gen_symbols.py --check            # fail if the committed files are stale or extra
     python tools/gen_symbols.py --kicad-symbols D  # stock libraries in directory D
 
 Standard library only. It needs a KiCad 9 symbol directory (the ``kicad-symbols``
-package) as input, found via $KICAD_SYMBOL_DIR, $KICAD9_SYMBOL_DIR or the usual
-install locations.
+package) as input, found via --kicad-symbols, $KICAD_SYMBOL_DIR, $KICAD9_SYMBOL_DIR or the
+usual install locations (Linux, Flatpak, macOS, Windows). Only KiCad 9 libraries are accepted.
+The committed files come from kicad-symbols release 9.0.9.
 """
 from __future__ import annotations
 
@@ -76,10 +77,17 @@ SIM_DEVICE = {
 
 PACKAGE_KINDS = ("opamp", "opamp2", "opamp4")  # pins are numbered like the SPICE nodes
 
-#: Where the stock symbol libraries usually live.
+#: The KiCad release whose stock libraries the output is made from (file format and graphics).
+STOCK_MAJOR = "9"
+
+#: Where the stock symbol libraries usually live (after --kicad-symbols and the
+#: KICAD_SYMBOL_DIR / KICAD9_SYMBOL_DIR variables): Linux, Flatpak, macOS, Windows.
+_FLATPAK = "app/org.kicad.KiCad/current/active/files/share/kicad/symbols"
 STOCK_DIRS = (
     "/usr/share/kicad/symbols",
     "/usr/local/share/kicad/symbols",
+    f"/var/lib/flatpak/{_FLATPAK}",
+    str(Path.home() / f".local/share/flatpak/{_FLATPAK}"),
     "/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols",
     "C:/Program Files/KiCad/9.0/share/kicad/symbols",
 )
@@ -150,6 +158,10 @@ class Stock:
         root, _ = self._load(library)
         version = children(root, "version")[0][1]
         gen = children(root, "generator_version")[0][1]
+        if not unquote(gen).startswith(STOCK_MAJOR + "."):
+            raise SystemExit(
+                f"{self.directory} holds KiCad {unquote(gen)} symbols; "
+                f"the generator needs KiCad {STOCK_MAJOR} (file format and graphics differ)")
         return version, gen
 
     def symbol(self, library, name):
@@ -299,9 +311,15 @@ def main(argv=None):
     ap.add_argument("--check", action="store_true", help="compare with the files on disk instead of writing")
     args = ap.parse_args(argv)
 
-    texts = generate(Stock(find_stock_dir(args.kicad_symbols)))
+    stock = Stock(find_stock_dir(args.kicad_symbols))
+    stock.header()  # refuse stock libraries from the wrong KiCad release before doing any work
+    texts = generate(stock)
     if args.check:
         stale = False
+        for path in sorted(args.out.glob("*.kicad_sym")):
+            if path.stem not in texts:
+                stale = True
+                print(f"{path} is not generated any more: delete it")
         for lib, text in texts.items():
             path = args.out / f"{lib}.kicad_sym"
             current = path.read_text(encoding="utf-8") if path.is_file() else ""

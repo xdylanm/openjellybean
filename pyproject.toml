@@ -9,7 +9,13 @@ description = "Generic, original 'jelly bean' SPICE models with matching KiCad s
 readme = "README.md"
 requires-python = ">=3.13"
 license = "MIT AND (CC-BY-SA-4.0 WITH KiCad-libraries-exception)"
-license-files = ["LICENSE", "kicad/LICENSE.md", "LICENSES/CC-BY-SA-4.0.txt"]
+license-files = [
+    "LICENSE",
+    "kicad/LICENSE.md",
+    "LICENSES/MIT.txt",
+    "LICENSES/CC-BY-SA-4.0.txt",
+    "LICENSES/KiCad-libraries-exception.txt",
+]
 authors = [{ name = "xdylanm" }]
 keywords = ["spice", "ngspice", "ltspice", "kicad", "models", "netlist"]
 classifiers = [
