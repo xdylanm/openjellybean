@@ -5,13 +5,13 @@ build-backend = "hatchling.build"
 [project]
 name = "openjellybean"
 dynamic = ["version"]
-description = "Generic, original 'jelly bean' SPICE models, packaged for use as a dependency"
+description = "Generic, original 'jelly bean' SPICE models with matching KiCad symbols, packaged for use as a dependency"
 readme = "README.md"
 requires-python = ">=3.13"
-license = "MIT"
-license-files = ["LICENSE"]
+license = "MIT AND (CC-BY-SA-4.0 WITH KiCad-libraries-exception)"
+license-files = ["LICENSE", "kicad/LICENSE.md"]
 authors = [{ name = "xdylanm" }]
-keywords = ["spice", "ngspice", "ltspice", "models", "netlist"]
+keywords = ["spice", "ngspice", "ltspice", "kicad", "models", "netlist"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
@@ -37,9 +37,11 @@ packages = ["src/openjellybean"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "jellybean.lib" = "openjellybean/jellybean.lib"
+"kicad/symbols" = "openjellybean/symbols"
+"kicad/LICENSE.md" = "openjellybean/symbols/LICENSE.md"
 
 [tool.hatch.build.targets.sdist]
-include = ["src/openjellybean", "jellybean.lib", "README.md", "LICENSE"]
+include = ["src/openjellybean", "jellybean.lib", "kicad", "tools", "tests", "README.md", "LICENSE"]
 
 [tool.hatch.build.targets.sdist.force-include]
 "jellybean.lib" = "jellybean.lib"

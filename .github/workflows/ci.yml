@@ -88,16 +88,23 @@ jobs:
           assert p.is_file(), p
           m = re.search(r"^\* Version (\S+)", p.read_text(), re.M)
           assert m and m.group(1) == oj.__version__, (m and m.group(1), oj.__version__)
-          print("ok", p, oj.__version__)
+          s = oj.symbols_path()
+          assert len(list(s.glob("OpenJellybean_*.kicad_sym"))) == 4 and (s / "LICENSE.md").is_file(), s
+          print("ok", p, s, oj.__version__)
           PY
 
-      - name: Wheel library matches the root file
+      - name: Wheel library and symbols match the root files
         run: |
           python - <<'PY'
           import glob, zipfile
           from pathlib import Path
           z = zipfile.ZipFile(glob.glob("dist/*.whl")[0])
           assert z.read("openjellybean/jellybean.lib") == Path("jellybean.lib").read_bytes()
+          symbols = sorted(Path("kicad/symbols").glob("*.kicad_sym"))
+          assert len(symbols) == 4, symbols
+          for f in symbols:
+              assert z.read(f"openjellybean/symbols/{f.name}") == f.read_bytes(), f
+          assert z.read("openjellybean/symbols/LICENSE.md") == Path("kicad/LICENSE.md").read_bytes()
           PY
 
   tag-version:

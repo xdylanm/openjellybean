@@ -6,9 +6,15 @@ and how to validate one.
 
 ## Licensing rules
 
-openjellybean is MIT-licensed, and everything in it must stay that way. By submitting a
-contribution, you agree to license it under the [MIT license](LICENSE) and confirm you
-have the right to do so.
+openjellybean's models, test framework, tools and Python code are MIT-licensed, and must
+stay that way. By submitting a contribution, you agree to license it under the
+[MIT license](LICENSE) and confirm you have the right to do so.
+
+The one exception is `kicad/symbols`: those files are generated from KiCad's symbols and are
+licensed [CC-BY-SA 4.0 with the KiCad libraries exception](kicad/LICENSE.md). Don't edit
+them by hand and don't put MIT-only material in them. Change `tools/gen_symbols.py` and
+regenerate, and your changes to the generator stay MIT. Contributions to the symbol
+files are accepted under their license.
 
 **Don't use:**
 
@@ -132,7 +138,17 @@ python -m unittest discover tests
 
 **5. Add a row to the table in `README.md`,** with the target and measured values.
 
-**6. Update the version** in the `jellybean.lib` header:
+**6. Regenerate the KiCad symbols,** which needs KiCad 9's stock symbol libraries
+(see [`kicad/README.md`](kicad/README.md)), and commit the result:
+
+```bash
+python tools/gen_symbols.py
+```
+
+A new device kind needs a stock symbol in `BASE` and a library in `LIBRARY_OF_KIND` in
+`tools/gen_symbols.py`.
+
+**7. Update the version** in the `jellybean.lib` header:
 
 | Change | Version part to increase |
 |---|---|
@@ -176,6 +192,7 @@ target itself was wrong.
 - [ ] The parameters represent a typical device.
 - [ ] The name ends in `_OJ`, and the model is in the right section of `jellybean.lib`.
 - [ ] The version in the `jellybean.lib` header is updated.
+- [ ] `kicad/symbols` is regenerated with `python tools/gen_symbols.py`.
 - [ ] `tests/models.toml` has an entry with a real `source`.
 - [ ] `python tests/validate.py` and `python -m unittest discover tests` both pass.
 - [ ] The README table is updated, and any new limits are listed.
@@ -189,6 +206,8 @@ target itself was wrong.
 | `tests/harness.py` | Runs ngspice and parses the library |
 | `tests/smoke.py` | One mixed circuit using every device family |
 | `tests/test_framework.py` | Tests that the validator rejects damaged models |
+| `tests/test_symbols.py` | Checks that each KiCad symbol matches its model, and the generator |
+| `tools/gen_symbols.py` | Generates `kicad/symbols` from `models.toml` and KiCad's stock symbols |
 | `tests/models.toml` | The metadata for every model |
 
 To add a measure, write a function in `measures.py` with the `@measure` decorator. Its
