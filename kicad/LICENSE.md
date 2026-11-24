@@ -7,8 +7,8 @@ Library Team and contributors. They are therefore licensed as the KiCad librarie
 
 SPDX-License-Identifier: `CC-BY-SA-4.0 WITH KiCad-libraries-exception`
 
-The [Creative Commons CC-BY-SA 4.0 License](https://creativecommons.org/licenses/by-sa/4.0/legalcode),
-with the following exception:
+The [Creative Commons CC-BY-SA 4.0 License](https://creativecommons.org/licenses/by-sa/4.0/legalcode)
+(a copy is in [`LICENSES/CC-BY-SA-4.0.txt`](../LICENSES/CC-BY-SA-4.0.txt)), with the following exception:
 
 ---------
 
