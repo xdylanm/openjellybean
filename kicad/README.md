@@ -37,7 +37,9 @@ the simulator where `jellybean.lib` is (the symbols' `Sim.Library` field is
    and `python -m openjellybean` then prints these paths.)
 
 2. In KiCad, open **Preferences > Configure Paths** and add the variable
-   `OPENJELLYBEAN_DIR`, set to that folder.
+   `OPENJELLYBEAN_DIR`, set to that folder. It must be an **absolute path**, such as
+   `/home/you/src/openjellybean`: KiCad does not expand `~` or relative paths, and the
+   simulator then fails to find `jellybean.lib`.
 
 3. Open **Preferences > Manage Symbol Libraries** and add the four
    `OpenJellybean_*.kicad_sym` files.
