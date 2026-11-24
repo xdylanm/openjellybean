@@ -9,7 +9,7 @@ description = "Generic, original 'jelly bean' SPICE models with matching KiCad s
 readme = "README.md"
 requires-python = ">=3.13"
 license = "MIT AND (CC-BY-SA-4.0 WITH KiCad-libraries-exception)"
-license-files = ["LICENSE", "kicad/LICENSE.md"]
+license-files = ["LICENSE", "kicad/LICENSE.md", "LICENSES/CC-BY-SA-4.0.txt"]
 authors = [{ name = "xdylanm" }]
 keywords = ["spice", "ngspice", "ltspice", "kicad", "models", "netlist"]
 classifiers = [
@@ -41,7 +41,7 @@ packages = ["src/openjellybean"]
 "kicad/LICENSE.md" = "openjellybean/symbols/LICENSE.md"
 
 [tool.hatch.build.targets.sdist]
-include = ["src/openjellybean", "jellybean.lib", "kicad", "tools", "tests", "README.md", "LICENSE"]
+include = ["src/openjellybean", "jellybean.lib", "kicad", "tools", "tests", "LICENSES", "README.md", "LICENSE"]
 
 [tool.hatch.build.targets.sdist.force-include]
 "jellybean.lib" = "jellybean.lib"
